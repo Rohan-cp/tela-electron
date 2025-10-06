@@ -1,0 +1,311 @@
+/* Transform Modal Styles - Using centralized theme system */
+
+.transform-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+
+.transform-modal {
+  background-color: var(--tela-toolbar-bg);
+  border: 2px solid var(--tela-toolbar-border);
+  border-radius: var(--tela-border-radius);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  font-family: NM-Medium;
+}
+
+/* Loading Screen - matching FloatingToolbar loader design */
+.loading-screen {
+  padding: 40px 20px;
+  text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 312px;
+}
+
+.loader-container {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-spinner-large {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #ffffff40;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-screen h2 {
+  font-family: NM-Medium;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0;
+  color: #fff;
+  cursor: pointer;
+}
+
+.loading-screen p {
+  font-family: NM-Medium;
+  font-size: 14px;
+  color: #999;
+  margin: 8px 0 0 0;
+}
+
+/* Error Screen - matching FloatingToolbar design */
+.error-screen {
+  padding: 40px 20px;
+  text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 312px;
+}
+
+.error-icon {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+
+.error-screen h2 {
+  font-family: NM-Medium;
+  font-size: 18px;
+  font-weight: 400;
+  margin: 0 0 8px 0;
+  color: #fff;
+}
+
+.error-screen p {
+  font-family: NM-Medium;
+  font-size: 14px;
+  color: #999;
+  margin: 0 0 16px 0;
+}
+
+.retry-button {
+  background-color: var(--tela-prompt-button-bg);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 24px;
+  padding: 8px 24px;
+  font-family: NM-Medium;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.retry-button:hover {
+  background-color: var(--tela-prompt-button-hover-bg);
+}
+
+/* Diff Screen - Using FloatingToolbar bubble design */
+.diff-screen {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 14px;
+  align-items: flex-start;
+  min-width: 269px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  padding-left: 8px;
+}
+
+.modal-header h2 {
+  font-family: NM-Medium;
+  font-size: 18px;
+  font-weight: 400;
+  margin: 0;
+  color: #fff;
+}
+
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: var(--tela-button-hover-bg);
+  color: #fff;
+}
+
+.diff-container {
+  display: flex;
+  max-width: 550px;
+  min-width: 500px;
+  flex-direction: column;
+  gap: 13px;
+  align-self: center;
+  width: 100%;
+}
+
+/* Suggestion containers - matching FloatingToolbar */
+.suggest-remove-text-container,
+.suggest-add-text-container {
+  display: flex;
+  border-width: 0.5px;
+  border-style: solid;
+}
+
+.suggest-remove-text-container {
+  border-color: var(--tela-diff-remove-border);
+  background-color: var(--tela-diff-remove-bg);
+}
+
+.suggest-add-text-container {
+  border-color: var(--tela-diff-add-border);
+  background-color: var(--tela-diff-add-bg);
+}
+
+.suggest-remove-text,
+.suggest-add-text {
+  font-size: 16px;
+  padding: var(--tela-padding-standard);
+  overflow: hidden;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-family: NM-Medium;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.suggest-add-text {
+  color: #fff;
+}
+
+.suggest-remove-text {
+  color: #fff;
+}
+
+/* Indicator borders */
+.remove-red-left-border,
+.add-green-left-border {
+  height: 30px;
+  width: 1px;
+}
+
+.remove-red-left-border {
+  background-color: var(--tela-diff-remove-indicator);
+}
+
+.add-green-left-border {
+  background-color: var(--tela-diff-add-indicator);
+}
+
+.diff-view-actions {
+  display: flex;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  justify-content: flex-end;
+}
+
+.diff-view-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Action buttons - matching FloatingToolbar */
+.reject-toolbar-btn {
+  color: #eae8e2;
+  background-color: #1a1a1a;
+  font-size: 13px;
+  border-radius: 24px;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border: 0.4px solid #000000;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: NM-Medium;
+}
+
+.reject-toolbar-btn:hover {
+  background-color: var(--tela-button-hover-bg);
+}
+
+.accept-toolbar-btn {
+  color: #1a1a1a;
+  font-size: 13px;
+  border-radius: 24px;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  background-color: #eae8e2;
+  border: 0.4px solid #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: NM-Medium;
+}
+
+.accept-toolbar-btn:hover {
+  background-color: #f5f5f0;
+}
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .transform-modal {
+    width: 95%;
+    max-height: 90vh;
+    max-width: 500px;
+  }
+  
+  .diff-container {
+    min-width: 400px;
+    max-width: 450px;
+  }
+  
+  .loading-screen,
+  .error-screen {
+    min-width: 280px;
+  }
+}
