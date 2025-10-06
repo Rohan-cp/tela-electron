@@ -48,6 +48,14 @@
   background-color: var(--tela-selection-bg);
 }
 
+/* Autocomplete suggestion styling */
+.ql-editor .autocomplete-suggestion {
+  color: #666666 !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
 .ql-tooltip {
   z-index: 1000;
   position: fixed;

@@ -1,34 +1,34 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
-import styled from 'styled-components'
-import Button from '../Button'
-import { useEffect, useState } from 'react'
+import styled from "styled-components";
+import Button from "../Button";
+import { useEffect, useState } from "react";
 
 type Props = {
-  onClose: () => void
-}
+  onClose: () => void;
+};
 
 export default function FeedbackFormModal({ onClose }: Props) {
-  const [clusterTitle, setClusterTitle] = useState('')
-  const [clusterDescription, setClusterDescription] = useState('')
-  const [isSubmitReady, setIsSubmitReady] = useState<boolean>(false)
+  const [clusterTitle, setClusterTitle] = useState("");
+  const [clusterDescription, setClusterDescription] = useState("");
+  const [isSubmitReady, setIsSubmitReady] = useState<boolean>(false);
 
   useEffect(() => {
     if (clusterTitle?.length > 0 && clusterDescription.length > 0) {
-      setIsSubmitReady(true)
+      setIsSubmitReady(true);
     }
-  }, [clusterTitle, clusterDescription])
+  }, [clusterTitle, clusterDescription]);
 
   const handleBgClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      onClose()
+      onClose();
     }
-  }
+  };
 
   const handleSubmitFeedback = () => {
     // need to implement this once backend for this is ready
     // TODO(Rohan): create feedback endpoint and handler
-  }
+  };
 
   return (
     <StyledModalOverlay onClick={handleBgClick}>
@@ -36,9 +36,9 @@ export default function FeedbackFormModal({ onClose }: Props) {
         <StyledContentWrapper>
           <div
             style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
             }}
           >
             <TitleInput
@@ -56,8 +56,8 @@ export default function FeedbackFormModal({ onClose }: Props) {
           </div>
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'flex-end'
+              display: "flex",
+              justifyContent: "flex-end",
             }}
           >
             <Button onClick={handleSubmitFeedback} active={isSubmitReady}>
@@ -67,7 +67,7 @@ export default function FeedbackFormModal({ onClose }: Props) {
         </StyledContentWrapper>
       </StyledModal>
     </StyledModalOverlay>
-  )
+  );
 }
 
 const TitleInput = styled.input`
@@ -78,7 +78,7 @@ const TitleInput = styled.input`
   outline: none;
   padding: 8px;
   font-family: Chiaroscura;
-`
+`;
 
 const DescriptionInput = styled.input`
   font-size: 16px;
@@ -88,7 +88,7 @@ const DescriptionInput = styled.input`
   min-height: 200px;
   padding: 8px;
   outline: none;
-`
+`;
 
 const StyledModalOverlay = styled.div`
   position: fixed;
@@ -101,7 +101,7 @@ const StyledModalOverlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 1000; // High z-index to ensure it's above other elements
-`
+`;
 
 const StyledModal = styled.div`
   width: 407px;
@@ -109,7 +109,7 @@ const StyledModal = styled.div`
   color: white;
   border-radius: 16px;
   box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.04);
-`
+`;
 
 const StyledContentWrapper = styled.div`
   padding: 30px;
@@ -118,4 +118,4 @@ const StyledContentWrapper = styled.div`
   min-height: 207px;
   justify-content: space-between;
   gap: 10px;
-`
+`;

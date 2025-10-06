@@ -1,36 +1,36 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { useEffect, useState } from 'react'
-import { Subtree } from '@renderer/utils/textOps'
-import { useEditorContext } from '@renderer/contexts/EditorContext'
-import FloatingToolbar from './FloatingToolbar'
-import ChatAssistant from './ChatAssistant/ChatAssistant'
-import TransformModal from './Modals/TransformModal'
-import QuillEditor from './QuillEditor/QuillEditor'
-import EditorContainer from './EditorContainer/EditorContainer'
-import { useContentHandler } from './ContentHandler/ContentHandler'
+import { useEffect, useState } from "react";
+import { Subtree } from "@renderer/utils/textOps";
+import { useEditorContext } from "@renderer/contexts/EditorContext";
+import FloatingToolbar from "./FloatingToolbar";
+import ChatAssistant from "./ChatAssistant/ChatAssistant";
+import TransformModal from "./Modals/TransformModal";
+import QuillEditor from "./QuillEditor/QuillEditor";
+import EditorContainer from "./EditorContainer/EditorContainer";
+import { useContentHandler } from "./ContentHandler/ContentHandler";
 import {
   useEditorOperations,
   useSelectionHandling,
   useTransform,
   useKeyboardShortcuts,
   useMouseEvents,
-  useChatAssistant
-} from '@renderer/hooks'
-import { useLLMAutocomplete } from '@renderer/hooks/useLLMAutocomplete'
-import './TextEditor.css'
+  useChatAssistant,
+} from "@renderer/hooks";
+import { useLLMAutocomplete } from "@renderer/hooks/useLLMAutocomplete";
+import "./TextEditor.css";
 
 type Props = {
-  setCharCount: (num: number) => void
-  setWordCount: (num: number) => void
-  setLineCount: (num: number) => void
-  setTextValue: (txt: string) => void
-  setSuggestion: (newSuggestion: Suggestion | null) => void
-  setFileTree: (newFileTree: Subtree[]) => void
-  setAutocompleteState: (state: unknown) => void
-  textValue: string
-  fileTree: Subtree[]
-  suggestion?: Suggestion
-}
+  setCharCount: (num: number) => void;
+  setWordCount: (num: number) => void;
+  setLineCount: (num: number) => void;
+  setTextValue: (txt: string) => void;
+  setSuggestion: (newSuggestion: Suggestion | null) => void;
+  setFileTree: (newFileTree: Subtree[]) => void;
+  setAutocompleteState: (state: unknown) => void;
+  textValue: string;
+  fileTree: Subtree[];
+  suggestion?: Suggestion;
+};
 
 export default function TextEditor({
   setCharCount,
@@ -42,20 +42,21 @@ export default function TextEditor({
   setAutocompleteState,
   textValue,
   fileTree: _fileTree, // eslint-disable-line @typescript-eslint/no-unused-vars
-  suggestion: _suggestion // eslint-disable-line @typescript-eslint/no-unused-vars
+  suggestion: _suggestion, // eslint-disable-line @typescript-eslint/no-unused-vars
 }: Props): JSX.Element {
-  const [showDiffView, setShowDiffView] = useState(false)
-  const [isTransformSelected, setIsTransformSelected] = useState(false)
-  const [, setIsInteractingWithToolbar] = useState(false)
+  const [showDiffView, setShowDiffView] = useState(false);
+  const [isTransformSelected, setIsTransformSelected] = useState(false);
+  const [, setIsInteractingWithToolbar] = useState(false);
 
-  const { quillRef, updateFileStats, getEditorStats, formatHeader } = useEditorOperations({
-    setCharCount,
-    setWordCount,
-    setLineCount,
-    setFileTree
-  })
+  const { quillRef, updateFileStats, getEditorStats, formatHeader } =
+    useEditorOperations({
+      setCharCount,
+      setWordCount,
+      setLineCount,
+      setFileTree,
+    });
 
-  const { setSelectedStats } = useEditorContext()
+  const { setSelectedStats } = useEditorContext();
 
   const {
     showToolbar,
@@ -66,11 +67,11 @@ export default function TextEditor({
     setTransformSelection,
     handleSelectionChange,
     handleUpdatingSelectedStats,
-    scrollToHeaderHandler
+    scrollToHeaderHandler,
   } = useSelectionHandling({
     quillRef,
-    setSelectedStats
-  })
+    setSelectedStats,
+  });
 
   const {
     showLoader,
@@ -84,25 +85,29 @@ export default function TextEditor({
     handleSubmitPromptToTransform,
     handleTransformAccept,
     handleTransformReject,
-    handleTransformModalClose
+    handleTransformModalClose,
   } = useTransform({
     quillRef,
     transformSelection,
     setSuggestion,
-    setShowToolbar
-  })
+    setShowToolbar,
+  });
 
   const {
     state: autocompleteState,
     handleTabPress,
     handleEscapePress,
-    cleanup
+    cleanup,
   } = useLLMAutocomplete({
-    quillRef
-  })
+    quillRef,
+  });
 
-  const { isChatAssistantOpen, selectedText, closeChatAssistant, openChatAssistant } =
-    useChatAssistant()
+  const {
+    isChatAssistantOpen,
+    selectedText,
+    closeChatAssistant,
+    openChatAssistant,
+  } = useChatAssistant();
 
   // Set up keyboard shortcuts
   useKeyboardShortcuts({
@@ -118,23 +123,23 @@ export default function TextEditor({
     setIsChatAssistantOpen: (open: boolean | ((prev: boolean) => boolean)) => {
       if (open) {
         // Get selected text from Quill editor
-        const quill = quillRef.current?.getEditor()
+        const quill = quillRef.current?.getEditor();
         if (quill) {
-          const selection = quill.getSelection()
+          const selection = quill.getSelection();
           if (selection && selection.length > 0) {
-            const text = quill.getText(selection.index, selection.length)
-            openChatAssistant(text)
+            const text = quill.getText(selection.index, selection.length);
+            openChatAssistant(text);
           } else {
-            openChatAssistant()
+            openChatAssistant();
           }
         } else {
-          openChatAssistant()
+          openChatAssistant();
         }
       } else {
-        closeChatAssistant()
+        closeChatAssistant();
       }
-    }
-  })
+    },
+  });
 
   useMouseEvents({
     quillRef,
@@ -142,8 +147,8 @@ export default function TextEditor({
     setIsTransformSelected,
     setShowDiffView,
     setSelectedStats,
-    handleUpdatingSelectedStats
-  })
+    handleUpdatingSelectedStats,
+  });
 
   const { handleChange } = useContentHandler({
     setTextValue,
@@ -155,29 +160,29 @@ export default function TextEditor({
     setLineCount,
     quillRef,
     handleTabPress,
-    handleEscapePress
-  })
+    handleEscapePress,
+  });
 
   useEffect(() => {
-    scrollToHeaderHandler()
-  }, [scrollToHeaderHandler])
+    scrollToHeaderHandler();
+  }, [scrollToHeaderHandler]);
 
   // Cleanup autocomplete on unmount
   useEffect(() => {
     return () => {
-      cleanup()
-    }
-  }, [cleanup])
+      cleanup();
+    };
+  }, [cleanup]);
 
   // Update parent with autocomplete state
   useEffect(() => {
-    setAutocompleteState(autocompleteState)
-  }, [autocompleteState, setAutocompleteState])
+    setAutocompleteState(autocompleteState);
+  }, [autocompleteState, setAutocompleteState]);
 
   const handleChangePromptInput = () => {
-    setIsTransformSelected(true)
-    setIsInteractingWithToolbar(true)
-  }
+    setIsTransformSelected(true);
+    setIsInteractingWithToolbar(true);
+  };
 
   return (
     <EditorContainer>
@@ -219,10 +224,10 @@ export default function TextEditor({
         error={transformError}
       />
     </EditorContainer>
-  )
+  );
 }
 
 export type Suggestion = {
-  currentWord: string
-  suggestion: string
-}
+  currentWord: string;
+  suggestion: string;
+};

@@ -32,5 +32,8 @@ release/
 .temp/
 *.log
 
+# --- Electron-vite temporary config files ---
+electron.vite.config.*.mjs
+
 
 

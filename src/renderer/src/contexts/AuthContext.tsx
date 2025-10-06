@@ -1,37 +1,45 @@
-import { createContext, memo, ReactNode, useContext, useMemo, useState } from 'react'
+import {
+  createContext,
+  memo,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 type ContextState = {
-  isUserAuthenticated: boolean
-  setIsUserAuthenticated: (newState: boolean) => void
+  isUserAuthenticated: boolean;
+  setIsUserAuthenticated: (newState: boolean) => void;
 
-  userEmail: string | null
-  setUserEmail: (newState: string | null) => void
+  userEmail: string | null;
+  setUserEmail: (newState: string | null) => void;
 
-  userMode: UserMode
-  setUserMode: (newState: UserMode) => void
-}
+  userMode: UserMode;
+  setUserMode: (newState: UserMode) => void;
+};
 
 export enum UserMode {
   editor,
-  noteTaker
+  noteTaker,
 }
 
-const AuthContext = createContext<ContextState | undefined>(undefined)
+const AuthContext = createContext<ContextState | undefined>(undefined);
 
 export const useAuthContext = (): ContextState => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('Attempted to use AuthContext without a provider!')
+    throw new Error("Attempted to use AuthContext without a provider!");
   }
-  return context
-}
+  return context;
+};
 
-type Props = { children: ReactNode }
+type Props = { children: ReactNode };
 
 const AuthProvider = memo(({ children }: Props) => {
-  const [isUserAuthenticated, setIsUserAuthenticated] = useState<boolean>(false)
-  const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [userMode, setUserMode] = useState<UserMode>(UserMode.editor)
+  const [isUserAuthenticated, setIsUserAuthenticated] =
+    useState<boolean>(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userMode, setUserMode] = useState<UserMode>(UserMode.editor);
 
   const value = useMemo(
     () => ({
@@ -40,14 +48,21 @@ const AuthProvider = memo(({ children }: Props) => {
       userEmail: userEmail,
       setUserEmail: setUserEmail,
       userMode: userMode,
-      setUserMode: setUserMode
+      setUserMode: setUserMode,
     }),
-    [isUserAuthenticated, setIsUserAuthenticated, userEmail, setUserEmail, userMode, setUserMode]
-  )
+    [
+      isUserAuthenticated,
+      setIsUserAuthenticated,
+      userEmail,
+      setUserEmail,
+      userMode,
+      setUserMode,
+    ],
+  );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-})
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+});
 
-AuthProvider.displayName = 'AuthProvider'
+AuthProvider.displayName = "AuthProvider";
 
-export default AuthProvider
+export default AuthProvider;

@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from 'react'
-import './FloatingToolbar.css'
-import telaIcon from '../assets/telaButtonIcon.png'
-import arrowIcon from '../assets/arrow.png'
+import React, { useState, useEffect } from "react";
+import "./FloatingToolbar.css";
+import telaIcon from "../assets/telaButtonIcon.png";
+import arrowIcon from "../assets/arrow.png";
 
 export type ToolbarPosition = {
-  top: number
-  left: number
-}
+  top: number;
+  left: number;
+};
 
 export type FloatingToolbarProps = {
-  showToolbar: boolean
-  showDiffView: boolean
-  showLoader: boolean
-  isTransformSelected: boolean
-  toolbarPosition: ToolbarPosition
-  handleChangePromptInput: () => void
-  handleSubmitPromptToTransform: (userTransformPrompt: string) => void
-  setIsInteractingWithToolbar: React.Dispatch<React.SetStateAction<boolean>>
-  originalText: string
-  suggestedText: string
-  transformError: string | null
-  retryCount: number
-}
+  showToolbar: boolean;
+  showDiffView: boolean;
+  showLoader: boolean;
+  isTransformSelected: boolean;
+  toolbarPosition: ToolbarPosition;
+  handleChangePromptInput: () => void;
+  handleSubmitPromptToTransform: (userTransformPrompt: string) => void;
+  setIsInteractingWithToolbar: React.Dispatch<React.SetStateAction<boolean>>;
+  originalText: string;
+  suggestedText: string;
+  transformError: string | null;
+  retryCount: number;
+};
 
 const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   showToolbar,
@@ -35,36 +35,40 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   originalText,
   suggestedText,
   transformError: _transformError,
-  retryCount: _retryCount
+  retryCount: _retryCount,
 }) => {
-  const [userTransformPrompt, setUserTransformPrompt] = useState('')
+  const [userTransformPrompt, setUserTransformPrompt] = useState("");
 
   // Add useEffect to clear the prompt when toolbar is closed
   useEffect(() => {
     // If toolbar is hidden or transform view is not selected, clear the prompt
     if (!showToolbar || !isTransformSelected) {
-      setUserTransformPrompt('')
+      setUserTransformPrompt("");
     }
-  }, [showToolbar, isTransformSelected])
+  }, [showToolbar, isTransformSelected]);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setUserTransformPrompt(event.target.value)
-    handleChangePromptInput()
-  }
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
+    setUserTransformPrompt(event.target.value);
+    handleChangePromptInput();
+  };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
-    if (event.key === 'Enter') {
-      event.preventDefault()
-      handleSubmitPromptToTransform(userTransformPrompt)
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ): void => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleSubmitPromptToTransform(userTransformPrompt);
     }
-  }
+  };
 
   const handleClickOnThinkDiv = (): void => {
     // Handle click on the "Preparing your changes..." text
     // This could be used to cancel the operation or show more details
-  }
+  };
 
-  if (!showToolbar) return null
+  if (!showToolbar) return null;
 
   if (showDiffView) {
     return (
@@ -72,7 +76,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         className="floating-toolbar diff-view"
         style={{
           top: `${toolbarPosition.top}px`,
-          left: `${toolbarPosition.left}px`
+          left: `${toolbarPosition.left}px`,
         }}
       >
         <div className="diff-view-content">
@@ -95,7 +99,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (showLoader) {
@@ -104,7 +108,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         className="floating-toolbar loader-view"
         style={{
           top: `${toolbarPosition.top}px`,
-          left: `${toolbarPosition.left}px`
+          left: `${toolbarPosition.left}px`,
         }}
       >
         <div className="loader-container">
@@ -114,7 +118,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (isTransformSelected) {
@@ -124,13 +128,13 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         style={{
           height: 43,
           top: `${toolbarPosition.top}px`,
-          left: `${toolbarPosition.left}px`
+          left: `${toolbarPosition.left}px`,
         }}
         onMouseDown={(e) => {
           if (!(e.target instanceof HTMLInputElement)) {
-            e.preventDefault()
+            e.preventDefault();
           }
-          setIsInteractingWithToolbar(true)
+          setIsInteractingWithToolbar(true);
         }}
       >
         <input
@@ -140,8 +144,8 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onClick={(e) => {
-            e.stopPropagation()
-            setIsInteractingWithToolbar(true)
+            e.stopPropagation();
+            setIsInteractingWithToolbar(true);
           }}
           onFocus={() => setIsInteractingWithToolbar(true)}
           placeholder='Ex. "make it sound more interesting"'
@@ -149,7 +153,9 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         />
         <div
           className="right-prompt-toolbar-btn"
-          onClick={() => !showLoader && handleSubmitPromptToTransform(userTransformPrompt)}
+          onClick={() =>
+            !showLoader && handleSubmitPromptToTransform(userTransformPrompt)
+          }
           style={{ opacity: showLoader ? 0.5 : 1 }}
         >
           {showLoader ? (
@@ -159,12 +165,12 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           )}
         </div>
       </div>
-    )
+    );
   }
 
   // Return null for standard view instead of rendering it
   // The standard view code is kept but not rendered
-  return null
-}
+  return null;
+};
 
-export default FloatingToolbar
+export default FloatingToolbar;

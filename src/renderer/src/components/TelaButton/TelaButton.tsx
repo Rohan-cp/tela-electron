@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { useState } from 'react'
-import telaIcon from '../../assets/telaButtonIcon.png'
-import TelaTooltip from './TelaTooltip'
-import styled from 'styled-components'
+import { useState } from "react";
+import telaIcon from "../../assets/telaButtonIcon.png";
+import TelaTooltip from "./TelaTooltip";
+import styled from "styled-components";
 
 // for now this button will not do anything
 // for beta, this should allow you update the app
 export default function TelaButton(): JSX.Element {
-  const [showTooltip, setShowTooltip] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleToggleTooltip = () => {
-    setShowTooltip((currVal) => !currVal)
-  }
+    setShowTooltip((currVal) => !currVal);
+  };
 
   return (
     <div onClick={handleToggleTooltip}>
@@ -19,14 +19,14 @@ export default function TelaButton(): JSX.Element {
         style={{
           width: 38,
           height: 38,
-          cursor: 'pointer'
+          cursor: "pointer",
         }}
         alt="button"
         src={telaIcon}
       />
       <StyledTooltip visible={showTooltip} />
     </div>
-  )
+  );
 }
 
 const StyledTooltip = styled(TelaTooltip)<{ visible: boolean }>`
@@ -37,4 +37,4 @@ const StyledTooltip = styled(TelaTooltip)<{ visible: boolean }>`
   right: 15px;
   top: 48px;
   z-index: 1;
-`
+`;

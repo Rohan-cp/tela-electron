@@ -1,46 +1,57 @@
-import { createContext, memo, ReactNode, useContext, useMemo, useState } from 'react'
+import {
+  createContext,
+  memo,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 type ContextState = {
-  isFeedbackFormModalOpen: boolean
-  setIsFeedbackFormModalOpen: (newState: boolean) => void
-  isChangelogModalOpen: boolean
-  setIsChangelogModalOpen: (newState: boolean) => void
-}
+  isFeedbackFormModalOpen: boolean;
+  setIsFeedbackFormModalOpen: (newState: boolean) => void;
+  isChangelogModalOpen: boolean;
+  setIsChangelogModalOpen: (newState: boolean) => void;
+};
 
-const ModalContext = createContext<ContextState | undefined>(undefined)
+const ModalContext = createContext<ContextState | undefined>(undefined);
 
 export const useModalContext = (): ContextState => {
-  const context = useContext(ModalContext)
+  const context = useContext(ModalContext);
   if (!context) {
-    throw new Error('Attempted to use ModalContext without a provider!')
+    throw new Error("Attempted to use ModalContext without a provider!");
   }
-  return context
-}
+  return context;
+};
 
-type Props = { children: ReactNode }
+type Props = { children: ReactNode };
 
 const ModalProvider = memo(({ children }: Props) => {
-  const [isFeedbackFormModalOpen, setIsFeedbackFormModalOpen] = useState<boolean>(false)
-  const [isChangelogModalOpen, setIsChangelogModalOpen] = useState<boolean>(false)
+  const [isFeedbackFormModalOpen, setIsFeedbackFormModalOpen] =
+    useState<boolean>(false);
+  const [isChangelogModalOpen, setIsChangelogModalOpen] =
+    useState<boolean>(false);
 
   const value = useMemo(
     () => ({
       isFeedbackFormModalOpen: isFeedbackFormModalOpen,
       setIsFeedbackFormModalOpen: setIsFeedbackFormModalOpen,
       isChangelogModalOpen: isChangelogModalOpen,
-      setIsChangelogModalOpen: setIsChangelogModalOpen
+      setIsChangelogModalOpen: setIsChangelogModalOpen,
     }),
     [
       isFeedbackFormModalOpen,
       setIsFeedbackFormModalOpen,
       isChangelogModalOpen,
-      setIsChangelogModalOpen
-    ]
-  )
+      setIsChangelogModalOpen,
+    ],
+  );
 
-  return <ModalContext.Provider value={value}>{children}</ModalContext.Provider>
-})
+  return (
+    <ModalContext.Provider value={value}>{children}</ModalContext.Provider>
+  );
+});
 
-ModalProvider.displayName = 'ModalProvider'
+ModalProvider.displayName = "ModalProvider";
 
-export default ModalProvider
+export default ModalProvider;

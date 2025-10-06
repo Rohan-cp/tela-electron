@@ -1,263 +1,271 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
-declare module 'react' {
+declare module "react" {
   interface CSSProperties {
-    WebkitAppRegion?: 'drag' | 'no-drag'
+    WebkitAppRegion?: "drag" | "no-drag";
   }
 }
 
-import BottomSidebar from '@renderer/components/BottomSidebar'
-import LeftSidebar from '@renderer/components/LeftSidebar'
-import ChangelogModal from '@renderer/components/Modals/ChangelogModal'
-import FeedbackFormModal from '@renderer/components/Modals/FeedbackFormModal'
-import RightSidebar from '@renderer/components/RightSidebar'
-import TextEditor, { Suggestion } from '@renderer/components/TextEditor'
-import EditorProvider from '@renderer/contexts/EditorContext'
-import { useModalContext } from '@renderer/contexts/ModalContext'
-import { Subtree } from '@renderer/utils/textOps'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
+import BottomSidebar from "@renderer/components/BottomSidebar";
+import LeftSidebar from "@renderer/components/LeftSidebar";
+import ChangelogModal from "@renderer/components/Modals/ChangelogModal";
+import FeedbackFormModal from "@renderer/components/Modals/FeedbackFormModal";
+import RightSidebar from "@renderer/components/RightSidebar";
+import TextEditor, { Suggestion } from "@renderer/components/TextEditor";
+import EditorProvider from "@renderer/contexts/EditorContext";
+import { useModalContext } from "@renderer/contexts/ModalContext";
+import { Subtree } from "@renderer/utils/textOps";
+import { useCallback, useEffect, useRef, useState } from "react";
+import styled from "styled-components";
 
 export default function Editor(): JSX.Element {
-  const [pageTitle, setPageTitle] = useState<string>('Daredevil')
-  const [pageDescription, setPageDescription] = useState<string>('The Man without Fear')
-  const [currentFilePath, setCurrentFilePath] = useState<string | null>(null)
+  const [pageTitle, setPageTitle] = useState<string>("Daredevil");
+  const [pageDescription, setPageDescription] = useState<string>(
+    "The Man without Fear",
+  );
+  const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
 
   // main text editor value
-  const [textValue, setTextValue] = useState('')
+  const [textValue, setTextValue] = useState("");
 
   // modal state
   const {
     isFeedbackFormModalOpen,
     setIsFeedbackFormModalOpen,
     isChangelogModalOpen,
-    setIsChangelogModalOpen
-  } = useModalContext()
+    setIsChangelogModalOpen,
+  } = useModalContext();
 
   // file stats state
-  const [charCount, setCharCount] = useState(0)
-  const [wordCount, setWordCount] = useState(0)
-  const [lineCount, setLineCount] = useState(1)
+  const [charCount, setCharCount] = useState(0);
+  const [wordCount, setWordCount] = useState(0);
+  const [lineCount, setLineCount] = useState(1);
 
   // suggestions for BottomSidebar
-  const [suggestion, setSuggestion] = useState<Suggestion | null>(null)
-  const [autocompleteState, setAutocompleteState] = useState<any>(null)
+  const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+  const [autocompleteState, setAutocompleteState] = useState<any>(null);
 
   // file tree for LeftSidebar
-  const [fileTree, setFileTree] = useState<Subtree[]>([])
+  const [fileTree, setFileTree] = useState<Subtree[]>([]);
 
-  const [isScrolling, setIsScrolling] = useState<boolean>(false)
-  const [scrollPercent, setScrollPercent] = useState<number>(0)
-  const [saveStatus, setSaveStatus] = useState<string | null>(null)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const scrollTimeoutRef = useRef<number | null>(null)
-  const saveStatusTimeoutRef = useRef<number | null>(null)
+  const [isScrolling, setIsScrolling] = useState<boolean>(false);
+  const [scrollPercent, setScrollPercent] = useState<number>(0);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<number | null>(null);
+  const saveStatusTimeoutRef = useRef<number | null>(null);
 
   // Function to reset editor state for new file
   const createNewFile = useCallback(() => {
-    setTextValue('')
-    setPageTitle('Untitled')
-    setPageDescription('New Document')
-    setCurrentFilePath(null)
-    setFileTree([])
-    setCharCount(0)
-    setWordCount(0)
-    setLineCount(1)
-    setSaveStatus('new file created')
-  }, [])
+    setTextValue("");
+    setPageTitle("Untitled");
+    setPageDescription("New Document");
+    setCurrentFilePath(null);
+    setFileTree([]);
+    setCharCount(0);
+    setWordCount(0);
+    setLineCount(1);
+    setSaveStatus("new file created");
+  }, []);
 
   useEffect(() => {
-    window.electron.webFrame.setZoomFactor(1)
-  }, [])
+    window.electron.webFrame.setZoomFactor(1);
+  }, []);
 
   // Clear save status after delay
   useEffect(() => {
     if (saveStatus && saveStatusTimeoutRef.current === null) {
       saveStatusTimeoutRef.current = window.setTimeout(() => {
-        setSaveStatus(null)
-        saveStatusTimeoutRef.current = null
-      }, 3000)
+        setSaveStatus(null);
+        saveStatusTimeoutRef.current = null;
+      }, 3000);
     }
     return () => {
       if (saveStatusTimeoutRef.current) {
-        clearTimeout(saveStatusTimeoutRef.current)
-        saveStatusTimeoutRef.current = null
+        clearTimeout(saveStatusTimeoutRef.current);
+        saveStatusTimeoutRef.current = null;
       }
-    }
-  }, [saveStatus])
+    };
+  }, [saveStatus]);
 
   // Handle CMD+N for new file
   useEffect(() => {
     const handleNew = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
-        event.preventDefault() // Prevent default browser new window
-        createNewFile()
+      if ((event.metaKey || event.ctrlKey) && event.key === "n") {
+        event.preventDefault(); // Prevent default browser new window
+        createNewFile();
       }
-    }
+    };
 
-    document.addEventListener('keydown', handleNew)
+    document.addEventListener("keydown", handleNew);
 
     return () => {
-      document.removeEventListener('keydown', handleNew)
-    }
-  }, [createNewFile])
+      document.removeEventListener("keydown", handleNew);
+    };
+  }, [createNewFile]);
 
-  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setPageTitle(e.target.value)
-  }, [])
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setPageTitle(e.target.value);
+    },
+    [],
+  );
 
-  const handleDescriptionChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setPageDescription(e.target.value)
-  }, [])
+  const handleDescriptionChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setPageDescription(e.target.value);
+    },
+    [],
+  );
 
   const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current
-      const scrollPercent = (scrollTop / (scrollHeight - clientHeight)) * 100
-      setScrollPercent(scrollPercent)
-      setIsScrolling(true)
+      const { scrollTop, scrollHeight, clientHeight } =
+        scrollContainerRef.current;
+      const scrollPercent = (scrollTop / (scrollHeight - clientHeight)) * 100;
+      setScrollPercent(scrollPercent);
+      setIsScrolling(true);
 
       if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current)
+        clearTimeout(scrollTimeoutRef.current);
       }
       scrollTimeoutRef.current = window.setTimeout(() => {
-        setIsScrolling(false)
-      }, 1000)
+        setIsScrolling(false);
+      }, 1000);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    const scrollContainer = scrollContainerRef.current
+    const scrollContainer = scrollContainerRef.current;
     if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScroll)
+      scrollContainer.addEventListener("scroll", handleScroll);
     }
     return () => {
       if (scrollContainer) {
-        scrollContainer.removeEventListener('scroll', handleScroll)
+        scrollContainer.removeEventListener("scroll", handleScroll);
       }
-    }
-  }, [handleScroll])
+    };
+  }, [handleScroll]);
 
   // Handle file created callback
   const handleFileCreated = useCallback(
     (_event: Electron.IpcRendererEvent, { filePath }: { filePath: string }) => {
-      setCurrentFilePath(filePath)
-      const fileName = filePath.split('/').pop() ?? 'file'
-      setSaveStatus(`created ${fileName}`)
-      setPageTitle(fileName.replace('.md', ''))
+      setCurrentFilePath(filePath);
+      const fileName = filePath.split("/").pop() ?? "file";
+      setSaveStatus(`created ${fileName}`);
+      setPageTitle(fileName.replace(".md", ""));
     },
-    []
-  )
+    [],
+  );
 
   useEffect(() => {
     const handleSave = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 's') {
-        event.preventDefault() // Prevent the default browser save action
+      if ((event.metaKey || event.ctrlKey) && event.key === "s") {
+        event.preventDefault(); // Prevent the default browser save action
         if (currentFilePath) {
           // Update existing file
-          window.api.triggerSaveDocument(currentFilePath, textValue)
-          const fileName = currentFilePath.split('/').pop() ?? 'file'
-          setSaveStatus(`saved ${fileName}`)
+          window.api.triggerSaveDocument(currentFilePath, textValue);
+          const fileName = currentFilePath.split("/").pop() ?? "file";
+          setSaveStatus(`saved ${fileName}`);
         } else {
           // Create new file
-          window.api.triggerCreateDocument(textValue)
-          setSaveStatus('creating new file...')
+          window.api.triggerCreateDocument(textValue);
+          setSaveStatus("creating new file...");
         }
       }
-    }
+    };
 
-    document.addEventListener('keydown', handleSave)
-    window.api.onFileCreated(handleFileCreated)
+    document.addEventListener("keydown", handleSave);
+    window.api.onFileCreated(handleFileCreated);
 
     // Cleanup function
     return () => {
-      document.removeEventListener('keydown', handleSave)
-      window.api.removeFileCreatedListener(handleFileCreated)
-    }
-  }, [textValue, currentFilePath, handleFileCreated])
+      document.removeEventListener("keydown", handleSave);
+      window.api.removeFileCreatedListener(handleFileCreated);
+    };
+  }, [textValue, currentFilePath, handleFileCreated]);
 
   // use effect to handle opening document on CMD+o
   useEffect(() => {
     const handleOpen = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'o') {
-        event.preventDefault() // Prevent the default browser open action
-        console.log('Open shortcut triggered')
-        window.api.triggerOpenDocument()
+      if ((event.metaKey || event.ctrlKey) && event.key === "o") {
+        event.preventDefault(); // Prevent the default browser open action
+        window.api.triggerOpenDocument();
       }
-    }
-    document.addEventListener('keydown', handleOpen)
+    };
+    document.addEventListener("keydown", handleOpen);
 
     const handleFileOpened = (
       _event: Electron.IpcRendererEvent,
-      { filePath, content }: { filePath: string; content: string }
+      { filePath, content }: { filePath: string; content: string },
     ) => {
-      console.log('File opened:', filePath)
-      setTextValue(content)
-      const pageTitleToUpdate = filePath.split('/').pop()?.replace('.md', '') ?? 'Untitled'
-      setPageTitle(pageTitleToUpdate)
-      setCurrentFilePath(filePath)
-    }
-    window.api.onFileOpened(handleFileOpened)
+      setTextValue(content);
+      const pageTitleToUpdate =
+        filePath.split("/").pop()?.replace(".md", "") ?? "Untitled";
+      setPageTitle(pageTitleToUpdate);
+      setCurrentFilePath(filePath);
+    };
+    window.api.onFileOpened(handleFileOpened);
 
     return () => {
-      document.removeEventListener('keydown', handleOpen)
-      window.api.removeFileOpenedListener(handleFileOpened)
-    }
-  }, [setTextValue, setPageTitle, setCurrentFilePath])
+      document.removeEventListener("keydown", handleOpen);
+      window.api.removeFileOpenedListener(handleFileOpened);
+    };
+  }, [setTextValue, setPageTitle, setCurrentFilePath]);
 
   // minimize zoomfactor with CMD+'-'
   useEffect(() => {
     const handleMinimize = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'z') {
-        event.preventDefault() // Prevent the default browser open action
-        window.electron.webFrame.setZoomFactor(1)
+      if ((event.metaKey || event.ctrlKey) && event.key === "z") {
+        event.preventDefault(); // Prevent the default browser open action
+        window.electron.webFrame.setZoomFactor(1);
       }
-    }
-    document.addEventListener('keydown', handleMinimize)
+    };
+    document.addEventListener("keydown", handleMinimize);
 
     return () => {
-      document.removeEventListener('keydown', handleMinimize)
-    }
-  }, [])
+      document.removeEventListener("keydown", handleMinimize);
+    };
+  }, []);
 
   // Notify main process of route change when Editor mounts
   useEffect(() => {
-    window.api.notifyRouteChange('/')
-  }, [])
+    window.api.notifyRouteChange("/");
+  }, []);
 
   return (
     <EditorProvider>
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100vh',
-          width: '100%',
-          overflow: 'hidden'
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          width: "100%",
+          overflow: "hidden",
         }}
       >
         <div
           style={{
-            height: '32px',
-            backgroundColor: '#1a1a1a',
-            WebkitAppRegion: 'drag',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 10px',
-            width: '100%'
+            height: "32px",
+            backgroundColor: "#1a1a1a",
+            WebkitAppRegion: "drag",
+            display: "flex",
+            alignItems: "center",
+            padding: "0 10px",
+            width: "100%",
           }}
         >
-          <div style={{ WebkitAppRegion: 'no-drag' }}>
+          <div style={{ WebkitAppRegion: "no-drag" }}>
             {/* Buttons or other controls that shouldn't trigger dragging */}
           </div>
         </div>
         <div
           style={{
             flex: 1,
-            width: '100%',
-            overflow: 'auto',
-            overflowY: 'hidden',
-            scrollbarWidth: 'thin'
+            width: "100%",
+            overflow: "auto",
+            overflowY: "hidden",
+            scrollbarWidth: "thin",
           }}
         >
           <Wrapper className="thin-scrollbar">
@@ -275,7 +283,10 @@ export default function Editor(): JSX.Element {
                 onChange={handleDescriptionChange}
                 placeholder="enter page description..."
               />
-              <ScrollableContent className="thin-scrollbar" ref={scrollContainerRef}>
+              <ScrollableContent
+                className="thin-scrollbar"
+                ref={scrollContainerRef}
+              >
                 <TextEditor
                   setCharCount={setCharCount}
                   setWordCount={setWordCount}
@@ -301,7 +312,9 @@ export default function Editor(): JSX.Element {
             </MainContentWrapper>
             <RightSidebar />
             {isFeedbackFormModalOpen && (
-              <FeedbackFormModal onClose={() => setIsFeedbackFormModalOpen(false)} />
+              <FeedbackFormModal
+                onClose={() => setIsFeedbackFormModalOpen(false)}
+              />
             )}
             {isChangelogModalOpen && (
               <ChangelogModal onClose={() => setIsChangelogModalOpen(false)} />
@@ -310,7 +323,7 @@ export default function Editor(): JSX.Element {
         </div>
       </div>
     </EditorProvider>
-  )
+  );
 }
 
 const Wrapper = styled.div`
@@ -323,7 +336,7 @@ const Wrapper = styled.div`
   font-family: Geist;
   font-weight: 500;
   scrollbar-width: thin;
-`
+`;
 
 const MainContentWrapper = styled.div`
   display: flex;
@@ -331,12 +344,12 @@ const MainContentWrapper = styled.div`
   width: 69%;
   margin-top: 3%;
   height: 100%;
-`
+`;
 
 const ScrollableContent = styled.div`
   overflow-y: auto;
   flex-grow: 1;
-`
+`;
 
 const StyledTitleInput = styled.input`
   display: block;
@@ -350,7 +363,7 @@ const StyledTitleInput = styled.input`
   font-size: 22px;
   margin-bottom: 3px;
   font-family: NM-Medium;
-`
+`;
 
 const StyledDescriptionInput = styled.input`
   display: block;
@@ -364,4 +377,4 @@ const StyledDescriptionInput = styled.input`
   font-size: 17px;
   margin-bottom: 16px;
   font-family: NM-Medium;
-`
+`;

@@ -1,39 +1,39 @@
-import ReactQuill from 'react-quill'
-import 'quill/dist/quill.bubble.css'
+import ReactQuill from "react-quill";
+import "quill/dist/quill.bubble.css";
 
 export interface QuillEditorProps {
-  quillRef: React.RefObject<ReactQuill>
-  value: string
-  onChange: (content: string, delta: any, source: any, editor: any) => void
-  onChangeSelection: (range: any, source: any, editor: any) => void
+  quillRef: React.RefObject<ReactQuill>;
+  value: string;
+  onChange: (content: string, delta: any, source: any, editor: any) => void;
+  onChangeSelection: (range: any, source: any, editor: any) => void;
 }
 
 const modules = {
   toolbar: false, // Disable the default toolbar
   clipboard: {
     // Preserve whitespace
-    matchVisual: false
-  }
-}
+    matchVisual: false,
+  },
+};
 
 const formats = [
-  'bold',
-  'italic',
-  'underline',
-  'strike',
-  'header',
-  'list',
-  'bullet',
-  'color',
-  'link',
-  'image'
-]
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "header",
+  "list",
+  "bullet",
+  "color",
+  "link",
+  "image",
+];
 
 export default function QuillEditor({
   quillRef,
   value,
   onChange,
-  onChangeSelection
+  onChangeSelection,
 }: QuillEditorProps): JSX.Element {
   return (
     <ReactQuill
@@ -45,5 +45,5 @@ export default function QuillEditor({
       modules={modules}
       formats={formats}
     />
-  )
+  );
 }

@@ -1,50 +1,52 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import styled from 'styled-components'
-import { HStack, VStack } from '../Spacer/Stack'
-import { useCallback, useMemo, useState } from 'react'
-import telaIcon from '../../assets/icon.png'
-import { useModalContext } from '@renderer/contexts/ModalContext'
+import styled from "styled-components";
+import { HStack, VStack } from "../Spacer/Stack";
+import { useCallback, useMemo, useState } from "react";
+import telaIcon from "../../assets/icon.png";
+import { useModalContext } from "@renderer/contexts/ModalContext";
 
 type Props = {
-  description?: string
-  className?: string
-  dataTestId?: string
-  whiteSpace?: 'nowrap' | 'normal'
-}
+  description?: string;
+  className?: string;
+  dataTestId?: string;
+  whiteSpace?: "nowrap" | "normal";
+};
 
 export default function Tooltip({ className, dataTestId }: Props) {
-  const { setIsChangelogModalOpen } = useModalContext()
-  const [isNewVersionAvailable] = useState(true)
-  const [userMode] = useState('editor')
+  const { setIsChangelogModalOpen } = useModalContext();
+  const [isNewVersionAvailable] = useState(true);
+  const [userMode] = useState("editor");
 
-
-  const handleOpenChangelogModal = useCallback(() => setIsChangelogModalOpen(true), [])
+  const handleOpenChangelogModal = useCallback(
+    () => setIsChangelogModalOpen(true),
+    [],
+  );
 
   const handleDownloadNewVersion = () => {
     // TODO(Rohan): need to implement this when ready
-  }
+  };
 
   const switchHref = useMemo(() => {
-    if (userMode === 'editor') {
-      return '/auth'
+    if (userMode === "editor") {
+      return "/auth";
     } else {
-      return '/'
+      return "/";
     }
-  }, [userMode])
+  }, [userMode]);
 
   return (
     <StyledTooltip className={className} data-testid={dataTestId}>
       <VStack align="center" justify="center" gap={14}>
         <div
           style={{
-            display: 'flex'
+            display: "flex",
           }}
         >
           <img
             style={{
               width: 40,
               height: 40,
-              borderRadius: '999px'
+              borderRadius: "999px",
             }}
             alt="button"
             src={telaIcon}
@@ -59,20 +61,24 @@ export default function Tooltip({ className, dataTestId }: Props) {
         </VStack>
         <VStack
           style={{
-            width: '100%',
-            marginTop: 4
+            width: "100%",
+            marginTop: 4,
           }}
           gap={8}
         >
           {isNewVersionAvailable && (
-            <Bubble onClick={handleDownloadNewVersion} align="center" justify="center">
+            <Bubble
+              onClick={handleDownloadNewVersion}
+              align="center"
+              justify="center"
+            >
               Share feedback
             </Bubble>
           )}
 
           <a
             style={{
-              textDecoration: 'none'
+              textDecoration: "none",
             }}
             href={switchHref}
           >
@@ -83,7 +89,7 @@ export default function Tooltip({ className, dataTestId }: Props) {
         </VStack>
       </VStack>
     </StyledTooltip>
-  )
+  );
 }
 
 export const StyledTooltip = styled(VStack)`
@@ -95,7 +101,7 @@ export const StyledTooltip = styled(VStack)`
   transition:
     opacity 300ms ease-in-out,
     transform 300ms ease-in-out;
-`
+`;
 
 const Bubble = styled(HStack)`
   background-color: #212121;
@@ -115,19 +121,19 @@ const Bubble = styled(HStack)`
   &:hover {
     color: #a4a4a4;
   }
-`
+`;
 
 const Title = styled.span`
   font-size: 26px;
   font-family: Chiaroscura;
   color: #3c3c3c;
-`
+`;
 
 const Text = styled.span`
   font-size: 16px;
   font-family: Geist;
   color: #3c3c3c;
-`
+`;
 
 const SmallText = styled.div`
   font-size: 12px;
@@ -135,4 +141,4 @@ const SmallText = styled.div`
   color: #898989;
   text-decoration: underline;
   cursor: pointer;
-`
+`;

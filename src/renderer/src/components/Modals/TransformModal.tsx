@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import './TransformModal.css'
+import React, { useState, useEffect } from "react";
+import "./TransformModal.css";
 
 export type TransformModalProps = {
-  isOpen: boolean
-  onClose: () => void
-  onAccept: (transformedText: string) => void
-  onReject: () => void
-  originalText: string
-  transformedText: string
-  isLoading: boolean
-  error: string | null
-}
+  isOpen: boolean;
+  onClose: () => void;
+  onAccept: (transformedText: string) => void;
+  onReject: () => void;
+  originalText: string;
+  transformedText: string;
+  isLoading: boolean;
+  error: string | null;
+};
 
 const TransformModal: React.FC<TransformModalProps> = ({
   isOpen,
@@ -20,53 +20,53 @@ const TransformModal: React.FC<TransformModalProps> = ({
   originalText,
   transformedText,
   isLoading,
-  error
+  error,
 }) => {
-  const [showDiff, setShowDiff] = useState(false)
+  const [showDiff, setShowDiff] = useState(false);
 
   // Reset state when modal opens/closes
   useEffect(() => {
     if (isOpen) {
-      setShowDiff(false)
+      setShowDiff(false);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   // Show diff view when transformation is complete
   useEffect(() => {
     if (!isLoading && transformedText && !error) {
       const timer = setTimeout(() => {
-        setShowDiff(true)
-      }, 500) // Small delay for smooth transition
-      return (): void => clearTimeout(timer)
+        setShowDiff(true);
+      }, 500); // Small delay for smooth transition
+      return (): void => clearTimeout(timer);
     }
-    return undefined
-  }, [isLoading, transformedText, error])
+    return undefined;
+  }, [isLoading, transformedText, error]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const handleAccept = (): void => {
-    onAccept(transformedText)
-    onClose()
-  }
+    onAccept(transformedText);
+    onClose();
+  };
 
   const handleReject = (): void => {
-    onReject()
-    onClose()
-  }
+    onReject();
+    onClose();
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent): void => {
-    if (e.key === 'Escape') {
-      onClose()
-    } else if (e.key === 'Enter' && showDiff && !isLoading) {
-      handleAccept()
-    } else if (e.key === 'n' && e.metaKey && showDiff && !isLoading) {
-      e.preventDefault()
-      handleReject()
-    } else if (e.key === 'y' && e.metaKey && showDiff && !isLoading) {
-      e.preventDefault()
-      handleAccept()
+    if (e.key === "Escape") {
+      onClose();
+    } else if (e.key === "Enter" && showDiff && !isLoading) {
+      handleAccept();
+    } else if (e.key === "n" && e.metaKey && showDiff && !isLoading) {
+      e.preventDefault();
+      handleReject();
+    } else if (e.key === "y" && e.metaKey && showDiff && !isLoading) {
+      e.preventDefault();
+      handleAccept();
     }
-  }
+  };
 
   return (
     <div
@@ -91,7 +91,10 @@ const TransformModal: React.FC<TransformModalProps> = ({
             <div className="error-icon">⚠️</div>
             <h2>Transformation failed</h2>
             <p>{error}</p>
-            <button className="retry-button" onClick={() => window.location.reload()}>
+            <button
+              className="retry-button"
+              onClick={() => window.location.reload()}
+            >
               Try Again
             </button>
           </div>
@@ -117,10 +120,16 @@ const TransformModal: React.FC<TransformModalProps> = ({
               </div>
               <div className="diff-view-actions">
                 <div className="diff-view-buttons">
-                  <div className="reject-toolbar-btn hover-btn" onClick={handleReject}>
+                  <div
+                    className="reject-toolbar-btn hover-btn"
+                    onClick={handleReject}
+                  >
                     Reject (⌘N)
                   </div>
-                  <div className="accept-toolbar-btn hover-btn" onClick={handleAccept}>
+                  <div
+                    className="accept-toolbar-btn hover-btn"
+                    onClick={handleAccept}
+                  >
                     Accept (⌘Y)
                   </div>
                 </div>
@@ -130,7 +139,7 @@ const TransformModal: React.FC<TransformModalProps> = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TransformModal
+export default TransformModal;

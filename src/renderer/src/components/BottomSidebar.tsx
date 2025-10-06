@@ -1,19 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
-import styled from 'styled-components'
-import ScrollProgressBar from './ScrollProgressBar'
-import { HStack } from './Spacer/Stack'
-import { LLMAutocompleteState } from '@renderer/hooks/useLLMAutocomplete'
-import { useEditorContext } from '@renderer/contexts/EditorContext'
-
-const CompletedText = styled.div`
-  font-weight: 600;
-  color: #ffffff;
-`
+import { useEffect, useMemo, useState } from "react";
+import styled from "styled-components";
+import ScrollProgressBar from "./ScrollProgressBar";
+import { LLMAutocompleteState } from "@renderer/hooks/useLLMAutocomplete";
+import { useEditorContext } from "@renderer/contexts/EditorContext";
 
 const Text = styled.div`
   font-weight: 600;
   color: #656565;
-`
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -23,24 +17,25 @@ const Wrapper = styled.div`
   min-height: 135px;
   margin-top: 18px;
   line-height: 1.2;
-`
+`;
 
 type Props = {
-  isScrolling: boolean
-  scrollPercent: number
-  charCount: number
-  wordCount: number
-  lineCount: number
-  autocompleteState?: LLMAutocompleteState
-  saveStatus?: string | null
-}
+  isScrolling: boolean;
+  scrollPercent: number;
+  charCount: number;
+  wordCount: number;
+  lineCount: number;
+  autocompleteState?: LLMAutocompleteState;
+  saveStatus?: string | null;
+};
 
-type BottomSidebarTypes =
-  | 'file-stats'
-  | 'scroll-progress'
-  | 'autocomplete'
-  | 'saved-file'
-  | 'selected-text-stats'
+enum BottomSidebarTypes {
+  FILE_STATS = "file-stats",
+  SCROLL_PROGRESS = "scroll-progress",
+  AUTOCOMPLETE = "autocomplete",
+  SAVED_FILE = "saved-file",
+  SELECTED_TEXT_STATS = "selected-text-stats",
+}
 
 export default function BottomSidebar({
   isScrolling,
@@ -49,75 +44,62 @@ export default function BottomSidebar({
   wordCount,
   lineCount,
   autocompleteState,
-  saveStatus
+  saveStatus,
 }: Props): JSX.Element {
-  const [type, setType] = useState<BottomSidebarTypes>('file-stats')
-  const { selectedStats } = useEditorContext()
+  const [type, setType] = useState<BottomSidebarTypes>(
+    BottomSidebarTypes.FILE_STATS,
+  );
+  const { selectedStats } = useEditorContext();
 
   useEffect(() => {
     if (selectedStats) {
-      setType('selected-text-stats')
+      setType(BottomSidebarTypes.SELECTED_TEXT_STATS);
     } else {
-      setType('file-stats')
+      setType(BottomSidebarTypes.FILE_STATS);
     }
-  }, [selectedStats])
+  }, [selectedStats]);
 
   useEffect(() => {
     if (isScrolling) {
-      setType('scroll-progress')
+      setType(BottomSidebarTypes.SCROLL_PROGRESS);
     } else {
-      setType('file-stats')
+      setType(BottomSidebarTypes.FILE_STATS);
     }
-  }, [isScrolling])
+  }, [isScrolling]);
 
   useEffect(() => {
-    if (autocompleteState?.isActive || autocompleteState?.isLoading) {
-      setType('autocomplete')
+    if (autocompleteState?.isLoading) {
+      setType(BottomSidebarTypes.AUTOCOMPLETE);
+    } else if (saveStatus) {
+      setType(BottomSidebarTypes.SAVED_FILE);
     } else {
-      setType('file-stats')
+      setType(BottomSidebarTypes.FILE_STATS);
     }
-  }, [autocompleteState])
-
-  useEffect(() => {
-    if (saveStatus) {
-      setType('saved-file')
-    } else {
-      setType('file-stats')
-    }
-  }, [saveStatus])
+  }, [autocompleteState?.isLoading, saveStatus]);
 
   const inner = useMemo(() => {
-    if (type === 'file-stats') {
-      const fileStatsText = `${lineCount}L ${wordCount}W ${charCount}C`
-      return <Text>{fileStatsText}</Text>
-    } else if (type === 'autocomplete') {
+    if (type === BottomSidebarTypes.FILE_STATS) {
+      const fileStatsText = `${lineCount}L ${wordCount}W ${charCount}C`;
+      return <Text>{fileStatsText}</Text>;
+    } else if (type === BottomSidebarTypes.AUTOCOMPLETE) {
       if (autocompleteState?.isLoading) {
-        return <Text>🤖 Generating suggestion...</Text>
-      } else if (autocompleteState?.isActive && autocompleteState?.suggestion) {
-        return (
-          <HStack>
-            <Text>Press Tab to accept:</Text>
-            <CompletedText>{autocompleteState.suggestion}</CompletedText>
-          </HStack>
-        )
-      } else if (autocompleteState?.error) {
-        return <Text>❌ {autocompleteState.error}</Text>
+        return <Text>🤖 Preparing autocomplete suggestion...</Text>;
       }
-      return <Text>🤖 Press Tab for AI autocomplete</Text>
-    } else if (type === 'scroll-progress') {
-      return <ScrollProgressBar scrollPercent={scrollPercent} />
-    } else if (type === 'saved-file') {
-      return <Text>{saveStatus}</Text>
-    } else if (type === 'selected-text-stats') {
+      return <Text>🤖 Ready for autocomplete</Text>;
+    } else if (type === BottomSidebarTypes.SCROLL_PROGRESS) {
+      return <ScrollProgressBar scrollPercent={scrollPercent} />;
+    } else if (type === BottomSidebarTypes.SAVED_FILE) {
+      return <Text>{saveStatus}</Text>;
+    } else if (type === BottomSidebarTypes.SELECTED_TEXT_STATS) {
       if (selectedStats) {
-        const { charCount, wordCount } = selectedStats
-        const selectedStatsText = `[ ${wordCount}W ${charCount}C ]`
-        return <Text style={{ color: '#fefefe' }}>{selectedStatsText}</Text>
+        const { charCount, wordCount } = selectedStats;
+        const selectedStatsText = `[ ${wordCount}W ${charCount}C ]`;
+        return <Text style={{ color: "#fefefe" }}>{selectedStatsText}</Text>;
       } else {
-        return <Text>error</Text>
+        return <Text>error</Text>;
       }
     }
-    return null
+    return null;
   }, [
     type,
     scrollPercent,
@@ -126,8 +108,8 @@ export default function BottomSidebar({
     lineCount,
     autocompleteState,
     selectedStats,
-    saveStatus
-  ])
+    saveStatus,
+  ]);
 
-  return <Wrapper>{inner}</Wrapper>
+  return <Wrapper>{inner}</Wrapper>;
 }

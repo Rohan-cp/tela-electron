@@ -1,5 +1,5 @@
-import styled from 'styled-components'
-import TelaButton from './TelaButton/TelaButton'
+import styled from "styled-components";
+import TelaButton from "./TelaButton/TelaButton";
 
 const StyledDiv = styled.div`
   display: flex;
@@ -9,12 +9,12 @@ const StyledDiv = styled.div`
   margin-top: 3%;
   margin-right: 12px;
   align-items: flex-end;
-`
+`;
 
 export default function RightSidebar(): JSX.Element {
   return (
     <StyledDiv>
       <TelaButton />
     </StyledDiv>
-  )
+  );
 }
