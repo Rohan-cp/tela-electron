@@ -1,0 +1,327 @@
+/* FloatingToolbar styles */
+/* Using centralized theme variables from base.css */
+
+/* Base toolbar container */
+.floating-toolbar {
+  background-color: var(--tela-toolbar-bg);
+  border: 2px solid var(--tela-toolbar-border);
+  font-family: NM-Medium;
+  border-radius: var(--tela-border-radius);
+  display: flex;
+  gap: 1px;
+  position: absolute;
+  z-index: 1000;
+}
+
+/* Toolbar variants */
+.floating-toolbar.diff-view {
+  min-width: 269px;
+  padding: 8px 14px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.floating-toolbar.loader-view {
+  min-width: 312px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Transform and standard view variants use default styles */
+
+/* Hover effect for all buttons */
+.hover-btn {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.hover-btn:hover {
+  background-color: var(--tela-button-hover-bg);
+}
+
+/* Common button styles */
+.left-toolbar-btn,
+.center-toolbar-btn,
+.right-toolbar-btn,
+.left-diff-toolbar-btn {
+  background-color: var(--tela-button-bg);
+  padding: var(--tela-padding-standard);
+}
+
+/* Left positioned elements */
+.left-toolbar-btn,
+.left-prompt-toolbar-input,
+.left-diff-toolbar-btn {
+  border-top-left-radius: var(--tela-border-radius);
+  border-bottom-left-radius: var(--tela-border-radius);
+}
+
+/* Right positioned elements */
+.right-toolbar-btn,
+.right-prompt-toolbar-btn {
+  border-top-right-radius: var(--tela-border-radius);
+  border-bottom-right-radius: var(--tela-border-radius);
+}
+
+/* Flex centered elements */
+.right-toolbar-btn,
+.right-prompt-toolbar-btn,
+.left-diff-toolbar-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Horizontal padding for buttons */
+.left-toolbar-btn,
+.center-toolbar-btn,
+.right-toolbar-btn {
+  padding-left: var(--tela-padding-horizontal);
+  padding-right: var(--tela-padding-horizontal);
+}
+
+/* Larger horizontal padding */
+.left-prompt-toolbar-input,
+.left-diff-toolbar-btn {
+  padding-left: var(--tela-padding-large-horizontal);
+}
+
+/* Specific button styles */
+.right-toolbar-btn,
+.left-diff-toolbar-btn {
+  gap: 8px;
+}
+
+.left-diff-toolbar-btn {
+  padding-right: 16px;
+}
+
+/* Prompt toolbar styles */
+.left-prompt-toolbar-input {
+  background-color: var(--tela-button-bg);
+  font-size: 15px;
+  padding: 6px;
+  padding-right: 60px;
+}
+
+.right-prompt-toolbar-btn {
+  background-color: var(--tela-prompt-button-bg);
+  padding: var(--tela-padding-standard);
+  gap: 8px;
+  padding-left: var(--tela-padding-horizontal);
+  padding-right: var(--tela-padding-horizontal);
+  transition: background-color 0.2s ease;
+}
+
+.right-prompt-toolbar-btn:hover {
+  background-color: var(--tela-prompt-button-hover-bg);
+}
+
+/* Transform button icon */
+.transform-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Arrow icon */
+.arrow-icon {
+  width: 19px;
+  height: 19px;
+}
+
+/* Diff view specific styles */
+.diff-view-header {
+  color: var(--tela-text-primary);
+  font-family: NM-Medium;
+  font-size: 16px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.diff-view-container {
+  display: flex;
+  max-width: 400px;
+  min-width: 350px;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.diff-view-actions {
+  display: flex;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  justify-content: flex-end;
+}
+
+.diff-view-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Loader view specific styles */
+.loader-container {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  justify-content: center;
+  align-items: center;
+}
+
+input::placeholder {
+  font-family: 'SfProDisplayRegular'; /* Replace with your desired font */
+  color: var(--tela-text-primary); /* Updated from #69696c to #FFFFFF */
+  opacity: 0.7; /* Adding some opacity to make it less harsh while still being white */
+}
+
+.input {
+  min-width: 260px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  background-color: var(--tela-bg-hover);
+  color: var(--tela-text-primary);
+  caret-color: var(--tela-caret-color);
+  font-size: 15px;
+  padding: 6px;
+  padding-left: var(--tela-padding-large-horizontal);
+  border-top-left-radius: var(--tela-border-radius-medium);
+  border-bottom-left-radius: var(--tela-border-radius-medium);
+  border: none;
+}
+
+.input:focus {
+  outline: none; /* Removes browser default focus outline */
+  border: none; /* Removes border if any */
+}
+
+.loader-icon {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.loader-text {
+  font-family: NM-Medium;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Suggestion containers */
+.suggest-remove-text-container,
+.suggest-add-text-container {
+  display: flex;
+  border-width: 0.5px;
+  border-style: solid;
+}
+
+.suggest-remove-text-container {
+  border-color: var(--tela-diff-remove-border);
+  background-color: var(--tela-diff-remove-bg);
+}
+
+.suggest-add-text-container {
+  border-color: var(--tela-diff-add-border);
+  background-color: var(--tela-diff-add-bg);
+}
+
+.suggest-remove-text,
+.suggest-add-text {
+  font-size: 14px;
+  padding: var(--tela-padding-standard);
+  overflow: hidden;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.suggest-add-text {
+  color: var(--tela-text-primary);
+}
+
+/* Indicator borders */
+.remove-red-left-border,
+.add-green-left-border {
+  height: 30px;
+  width: 1px;
+}
+
+.remove-red-left-border {
+  background-color: var(--tela-diff-remove-indicator);
+}
+
+.add-green-left-border {
+  background-color: var(--tela-diff-add-indicator);
+}
+
+.reject-toolbar-btn {
+  color: #eae8e2;
+  background-color: var(--tela-bg-secondary);
+  font-size: 11px;
+  border-radius: 24px;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border: 0.4px solid #000000;
+}
+
+.accept-toolbar-btn {
+  color: #1a1a1a;
+  font-size: 11px;
+  border-radius: 24px;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  background-color: #eae8e2;
+  border: 0.4px solid #fff;
+}
+
+/* Error message styles */
+.error-message {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--tela-error);
+  color: var(--tela-text-primary);
+  padding: 8px 12px;
+  border-radius: 0 0 var(--tela-border-radius-medium) var(--tela-border-radius-medium);
+  font-size: 12px;
+  font-family: NM-Medium;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 1001;
+}
+
+.error-text {
+  font-weight: 500;
+}
+
+.retry-indicator {
+  font-size: 10px;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff40;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Disabled input state */
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

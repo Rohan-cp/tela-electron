@@ -1,0 +1,35 @@
+tasks:
+  dev:
+    command: "yarn"
+    args: ["dev"]
+    platform: "node"
+    inputs:
+      - "src/**/*"
+      - "apps/**/*"
+      - "electron.vite.config.ts"
+      - "tsconfig.*.json"
+    outputs:
+      - "out"   # output from electron-vite
+
+  build:
+    command: "yarn"
+    args: ["build"]
+    platform: "node"
+    inputs:
+      - "src/**/*"
+      - "apps/**/*"
+      - "electron.vite.config.ts"
+      - "tsconfig.*.json"
+    outputs:
+      - "dist"
+      - "out"
+
+  lint:
+    command: "yarn"
+    args: ["lint"]
+    platform: "node"
+
+  typecheck:
+    command: "yarn"
+    args: ["typecheck"]
+    platform: "node"

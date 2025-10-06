@@ -1,0 +1,63 @@
+.suggestion-container {
+    gap: 10px;
+}
+
+.apply-change-btn {
+    background-color: var(--tela-text-primary);
+    cursor: pointer;
+    color: var(--tela-selection-bg);
+    font-size: 12px;
+    border-radius: var(--tela-border-radius-medium);
+    width: fit-content;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 16px;
+    padding-left: 16px;
+    font-family: NM-Medium;
+}
+
+.apply-change-btn:hover {
+    background-color: var(--tela-bg-hover);
+}
+
+.suggestion-diff-container {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--tela-bg-quaternary);
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-right: 14px;
+    padding-left: 14px;
+    gap: 12px;
+}
+
+.suggest-remove-text-container,
+.suggest-add-text-container {
+    display: flex;
+    border-width: 0.5px;
+    border-style: solid;
+}
+
+.suggest-remove-text,
+.suggest-add-text {
+    font-size: 14px;
+    padding: 4px;
+    overflow: hidden;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+/* Indicator borders */
+.remove-red-left-border,
+.add-green-left-border {
+    height: 30px;
+    width: 1px;
+}
+
+.remove-red-left-border {
+    background-color: var(--remove-indicator);
+}
+
+.add-green-left-border {
+    background-color: var(--add-indicator);
+}
