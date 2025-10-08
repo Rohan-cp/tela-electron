@@ -32,7 +32,7 @@
   font-family: SfProDisplayMedium;
   font-size: 18px;
   margin-top: 21px;
-  margin-bottom: 16px;
+  margin-bottom: 6px;
 }
 
 .ql-bubble .ql-editor h2 {
@@ -40,7 +40,7 @@
   font-style: italic;
   font-size: 17px;
   color: var(--tela-text-secondary);
-  margin-top: 19px;
+  margin-top: 8px;
   margin-bottom: 6px;
 }
 

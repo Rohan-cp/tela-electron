@@ -58,8 +58,8 @@ export default function Editor(): JSX.Element {
   // Function to reset editor state for new file
   const createNewFile = useCallback(() => {
     setTextValue("");
-    setPageTitle("Untitled");
-    setPageDescription("New Document");
+    setPageTitle("CLAS 104");
+    setPageDescription("Notes on classical mythology");
     setCurrentFilePath(null);
     setFileTree([]);
     setCharCount(0);
@@ -118,6 +118,49 @@ export default function Editor(): JSX.Element {
     [],
   );
 
+  // simple YAML front matter serializer
+  const serializeDocument = useCallback(
+    (title: string, description: string, body: string): string => {
+      const safe = (val: string) => (val ?? "").replace(/\r\n|\r/g, "\n");
+      const fmTitle = safe(title).replace(/"/g, '\\"');
+      const fmDesc = safe(description).replace(/"/g, '\\"');
+      return `---\ntitle: "${fmTitle}"\ndescription: "${fmDesc}"\n---\n\n${safe(body)}`;
+    },
+    [],
+  );
+
+  // simple YAML front matter parser
+  const parseDocument = useCallback(
+    (
+      content: string,
+    ): { title?: string; description?: string; body: string } => {
+      if (!content?.startsWith("---\n")) {
+        return { body: content };
+      }
+      const endIdx = content.indexOf("\n---\n");
+      if (endIdx === -1) {
+        return { body: content };
+      }
+      const header = content.slice(4, endIdx); // after first '---\n'
+      const body = content.slice(endIdx + 5); // after '\n---\n'
+      let title: string | undefined;
+      let description: string | undefined;
+      header.split("\n").forEach((line) => {
+        const [key, ...rest] = line.split(":");
+        if (!key || rest.length === 0) return;
+        const rawVal = rest.join(":").trim();
+        const unquoted =
+          rawVal.startsWith('"') && rawVal.endsWith('"')
+            ? rawVal.slice(1, -1)
+            : rawVal;
+        if (key.trim() === "title") title = unquoted;
+        if (key.trim() === "description") description = unquoted;
+      });
+      return { title, description, body };
+    },
+    [],
+  );
+
   const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } =
@@ -153,7 +196,6 @@ export default function Editor(): JSX.Element {
       setCurrentFilePath(filePath);
       const fileName = filePath.split("/").pop() ?? "file";
       setSaveStatus(`created ${fileName}`);
-      setPageTitle(fileName.replace(".md", ""));
     },
     [],
   );
@@ -164,12 +206,22 @@ export default function Editor(): JSX.Element {
         event.preventDefault(); // Prevent the default browser save action
         if (currentFilePath) {
           // Update existing file
-          window.api.triggerSaveDocument(currentFilePath, textValue);
+          const serialized = serializeDocument(
+            pageTitle,
+            pageDescription,
+            textValue,
+          );
+          window.api.triggerSaveDocument(currentFilePath, serialized);
           const fileName = currentFilePath.split("/").pop() ?? "file";
           setSaveStatus(`saved ${fileName}`);
         } else {
           // Create new file
-          window.api.triggerCreateDocument(textValue);
+          const serialized = serializeDocument(
+            pageTitle,
+            pageDescription,
+            textValue,
+          );
+          window.api.triggerCreateDocument(serialized);
           setSaveStatus("creating new file...");
         }
       }
@@ -199,10 +251,17 @@ export default function Editor(): JSX.Element {
       _event: Electron.IpcRendererEvent,
       { filePath, content }: { filePath: string; content: string },
     ) => {
-      setTextValue(content);
-      const pageTitleToUpdate =
+      const parsed = parseDocument(content);
+      setTextValue(parsed.body ?? "");
+      const fallbackTitle =
         filePath.split("/").pop()?.replace(".md", "") ?? "Untitled";
-      setPageTitle(pageTitleToUpdate);
+      setPageTitle(parsed.title ?? fallbackTitle);
+      if (parsed.description !== undefined) {
+        setPageDescription(parsed.description);
+      } else {
+        // keep existing or fallback
+        setPageDescription((prev) => prev ?? "");
+      }
       setCurrentFilePath(filePath);
     };
     window.api.onFileOpened(handleFileOpened);
@@ -275,12 +334,16 @@ export default function Editor(): JSX.Element {
                 id="documentName"
                 value={pageTitle}
                 onChange={handleTitleChange}
+                onFocus={(e) => console.log("Title input focused")}
+                onBlur={(e) => console.log("Title input blurred")}
                 placeholder="enter page title..."
               />
               <StyledDescriptionInput
                 id="documentDescription"
                 value={pageDescription}
                 onChange={handleDescriptionChange}
+                onFocus={(e) => console.log("Description input focused")}
+                onBlur={(e) => console.log("Description input blurred")}
                 placeholder="enter page description..."
               />
               <ScrollableContent

@@ -294,7 +294,7 @@ function setupIpcHandlers(): void {
       createAuthCallbackServer();
 
       // Open the OAuth URL in the user's default browser
-      shell.openExternal("http://localhost:3001/auth/google");
+      shell.openExternal("http://localhost:3001/api/auth/google");
     } catch (err) {
       console.error("Error initiating Google auth:", err);
       if (mainWindow && !mainWindow.isDestroyed()) {

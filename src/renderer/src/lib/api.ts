@@ -9,9 +9,14 @@ export interface ApiError {
 
 export class ApiClient {
   private baseURL: string;
+  private authToken: string | null = null;
 
   constructor(baseURL: string = API_BASE_URL) {
     this.baseURL = baseURL;
+  }
+
+  setAuthToken(token: string | null): void {
+    this.authToken = token;
   }
 
   private async request<T>(
@@ -20,9 +25,13 @@ export class ApiClient {
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
 
-    const defaultHeaders = {
+    const defaultHeaders: Record<string, string> = {
       "Content-Type": "application/json",
     };
+
+    if (this.authToken) {
+      defaultHeaders["Authorization"] = `Bearer ${this.authToken}`;
+    }
 
     const config: RequestInit = {
       ...options,
@@ -92,6 +101,7 @@ export const API_ENDPOINTS = {
   AUTOCOMPLETE: "/api/autocomplete",
   TRANSFORM: "/api/transform",
   AUTH: "/auth",
+  FEEDBACK: "/api/feedback",
 } as const;
 
 // Type definitions for API responses
@@ -115,5 +125,21 @@ export interface TransformRequest {
 export interface TransformResponse {
   success: boolean;
   transformedText: string;
+  error?: string;
+}
+
+export interface FeedbackRequest {
+  email: string;
+  message: string;
+}
+
+export interface FeedbackResponse {
+  success: boolean;
+  feedback: {
+    id: string;
+    email: string;
+    message: string;
+    createdAt: string;
+  };
   error?: string;
 }
