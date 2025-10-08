@@ -14,6 +14,9 @@ type ContextState = {
   userEmail: string | null;
   setUserEmail: (newState: string | null) => void;
 
+  userToken: string | null;
+  setUserToken: (newState: string | null) => void;
+
   userMode: UserMode;
   setUserMode: (newState: UserMode) => void;
 };
@@ -39,6 +42,7 @@ const AuthProvider = memo(({ children }: Props) => {
   const [isUserAuthenticated, setIsUserAuthenticated] =
     useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userToken, setUserToken] = useState<string | null>(null);
   const [userMode, setUserMode] = useState<UserMode>(UserMode.editor);
 
   const value = useMemo(
@@ -47,6 +51,8 @@ const AuthProvider = memo(({ children }: Props) => {
       setIsUserAuthenticated: setIsUserAuthenticated,
       userEmail: userEmail,
       setUserEmail: setUserEmail,
+      userToken: userToken,
+      setUserToken: setUserToken,
       userMode: userMode,
       setUserMode: setUserMode,
     }),
@@ -55,6 +61,8 @@ const AuthProvider = memo(({ children }: Props) => {
       setIsUserAuthenticated,
       userEmail,
       setUserEmail,
+      userToken,
+      setUserToken,
       userMode,
       setUserMode,
     ],

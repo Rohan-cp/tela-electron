@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function Tooltip({ className, dataTestId }: Props) {
-  const { setIsChangelogModalOpen } = useModalContext();
+  const { setIsChangelogModalOpen, setIsFeedbackFormModalOpen } = useModalContext();
   const [isNewVersionAvailable] = useState(true);
   const [userMode] = useState("editor");
 
@@ -22,9 +22,10 @@ export default function Tooltip({ className, dataTestId }: Props) {
     [],
   );
 
-  const handleDownloadNewVersion = () => {
-    // TODO(Rohan): need to implement this when ready
-  };
+  const handleOpenFeedbackModal = useCallback(
+    () => setIsFeedbackFormModalOpen(true),
+    [],
+  );
 
   const switchHref = useMemo(() => {
     if (userMode === "editor") {
@@ -68,7 +69,7 @@ export default function Tooltip({ className, dataTestId }: Props) {
         >
           {isNewVersionAvailable && (
             <Bubble
-              onClick={handleDownloadNewVersion}
+              onClick={handleOpenFeedbackModal}
               align="center"
               justify="center"
             >

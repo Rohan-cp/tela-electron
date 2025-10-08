@@ -4,7 +4,6 @@ import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ReactDOM from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Editor from "./routes/Editor";
 import ModalProvider from "./contexts/ModalContext";
 import AuthPage from "./routes/AuthPage";
@@ -30,7 +29,6 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <RouterProvider router={router} />
         </ModalProvider>
       </AuthProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </React.StrictMode>,
 );

@@ -1,4 +1,5 @@
 import ReactQuill from "react-quill";
+import { useEffect } from "react";
 import "quill/dist/quill.bubble.css";
 
 export interface QuillEditorProps {
@@ -35,6 +36,13 @@ export default function QuillEditor({
   onChange,
   onChangeSelection,
 }: QuillEditorProps): JSX.Element {
+  useEffect(() => {
+    if (quillRef.current) {
+      const editor = quillRef.current.getEditor();
+      editor.root.setAttribute("spellcheck", "false");
+    }
+  }, []);
+
   return (
     <ReactQuill
       ref={quillRef}

@@ -15,7 +15,7 @@ export default function ChangelogModal({ onClose }: Props) {
   };
 
   return (
-    <StyledModalOverlay onClick={handleBgClick}>
+    <StyledModalOverlay onClick={handleBgClick} data-modal>
       <StyledModal>
         <StyledContentWrapper>
           <VStack gap={16}>

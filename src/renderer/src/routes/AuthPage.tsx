@@ -10,7 +10,7 @@ export default function AuthPage() {
   const user = true;
   const ready = true;
   const disableLogin = !ready || (ready && authenticated);
-  const { setIsUserAuthenticated, setUserEmail } = useAuthContext();
+  const { setIsUserAuthenticated, setUserEmail, setUserToken } = useAuthContext();
 
   // Notify main process of route change when component mounts
   useEffect(() => {
@@ -29,6 +29,7 @@ export default function AuthPage() {
 
         // Store in context
         setUserEmail(userData.email);
+        setUserToken(userData.token || null);
         setIsUserAuthenticated(true);
 
         // Make sure the redirect happens after state is updated
@@ -46,28 +47,15 @@ export default function AuthPage() {
     return () => {
       window.api.removeAuthSuccessListener(handleAuthSuccess);
     };
-  }, [setIsUserAuthenticated, setUserEmail]);
+  }, [setIsUserAuthenticated, setUserEmail, setUserToken]);
 
-  // Handle Google login button click - Demo mode: simulate successful auth
+  // Handle Google login button click - Real OAuth flow
   const handleGoogleLogin = (e) => {
     e.preventDefault();
 
     if (!disableLogin) {
-      // Simulate successful authentication with mock user data
-      const mockUserData = {
-        email: "demo@example.com",
-        name: "Demo User",
-        token: "demo-token-123",
-      };
-
-      // Set authentication state directly
-      setUserEmail(mockUserData.email);
-      setIsUserAuthenticated(true);
-
-      // Redirect to editor after a short delay
-      setTimeout(() => {
-        window.location.href = "/editor";
-      }, 500);
+      // Initiate real Google OAuth flow
+      window.api.initiateGoogleAuth();
     }
   };
 

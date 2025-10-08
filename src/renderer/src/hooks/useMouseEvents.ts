@@ -26,6 +26,9 @@ export function useMouseEvents({
       const toolbarElements = document.querySelectorAll(".floating-toolbar");
       const chatAssistant = document.querySelector(".chat-assistant-modal");
       const editorElement = document.querySelector(".ql-editor");
+      const titleInput = document.getElementById("documentName");
+      const descriptionInput = document.getElementById("documentDescription");
+      const modalElements = document.querySelectorAll("[data-modal]");
 
       let clickedInsideToolbar = false;
       toolbarElements.forEach((toolbar) => {
@@ -34,11 +37,29 @@ export function useMouseEvents({
         }
       });
 
+      let clickedInsideModal = false;
+      modalElements.forEach((modal) => {
+        if (modal.contains(e.target as Node)) {
+          clickedInsideModal = true;
+        }
+      });
+
       const clickedInsideChat = chatAssistant?.contains(e.target as Node);
       const clickedInsideEditor = editorElement?.contains(e.target as Node);
+      const clickedInsideTitleInput = titleInput?.contains(e.target as Node);
+      const clickedInsideDescriptionInput = descriptionInput?.contains(
+        e.target as Node,
+      );
 
-      if (!clickedInsideToolbar && !clickedInsideChat && !clickedInsideEditor) {
-        // Clicked outside toolbar, chat, and editor
+      if (
+        !clickedInsideToolbar &&
+        !clickedInsideChat &&
+        !clickedInsideEditor &&
+        !clickedInsideTitleInput &&
+        !clickedInsideDescriptionInput &&
+        !clickedInsideModal
+      ) {
+        // Clicked outside toolbar, chat, editor, and input fields
         if (window.getSelection) {
           const selection = window.getSelection();
           if (selection) {
