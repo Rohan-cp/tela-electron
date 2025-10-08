@@ -1,28 +1,28 @@
-import './assets/main.css'
+import "./assets/main.css";
 
-import React from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import ReactDOM from 'react-dom/client'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import Editor from './routes/Editor'
-import ModalProvider from './contexts/ModalContext'
-import AuthPage from './routes/AuthPage'
-import AuthProvider from './contexts/AuthContext'
-import { queryClient } from './lib/queryClient'
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import ReactDOM from "react-dom/client";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import Editor from "./routes/Editor";
+import ModalProvider from "./contexts/ModalContext";
+import AuthPage from "./routes/AuthPage";
+import AuthProvider from "./contexts/AuthContext";
+import { queryClient } from "./lib/queryClient";
 
 const router = createBrowserRouter([
   {
-    path: '/editor',
-    element: <Editor />
+    path: "/editor",
+    element: <Editor />,
   },
   {
-    path: '/',
-    element: <AuthPage />
-  }
-])
+    path: "/",
+    element: <AuthPage />,
+  },
+]);
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -32,5 +32,5 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  </React.StrictMode>
-)
+  </React.StrictMode>,
+);

@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
-import styled from 'styled-components'
-import { HStack, VStack } from '../Spacer/Stack'
+import styled from "styled-components";
+import { HStack, VStack } from "../Spacer/Stack";
 
 type Props = {
-  onClose: () => void
-}
+  onClose: () => void;
+};
 
 export default function ChangelogModal({ onClose }: Props) {
   const handleBgClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      onClose()
+      onClose();
     }
-  }
+  };
 
   return (
     <StyledModalOverlay onClick={handleBgClick}>
@@ -22,15 +22,23 @@ export default function ChangelogModal({ onClose }: Props) {
             <TitleText>Changelog</TitleText>
             <ChangelogItem
               date="October 15th, 2024"
-              changeItems={['Autocomplete suggested word with tab', 'Added feedback form']}
+              changeItems={[
+                "Autocomplete suggested word with tab",
+                "Added feedback form",
+              ]}
             />
           </VStack>
 
-          <HStack style={{ marginTop: '5px' }} justify="center" align="center">
+          <HStack style={{ marginTop: "5px" }} justify="center" align="center">
             <FooterText>Made with </FooterText>
 
             <FooterText
-              style={{ color: 'red', fontSize: '24px', marginLeft: '3px', marginRight: '3px' }}
+              style={{
+                color: "red",
+                fontSize: "24px",
+                marginLeft: "3px",
+                marginRight: "3px",
+              }}
             >
               ❤️
             </FooterText>
@@ -40,7 +48,7 @@ export default function ChangelogModal({ onClose }: Props) {
         </StyledContentWrapper>
       </StyledModal>
     </StyledModalOverlay>
-  )
+  );
 }
 
 const FooterText = styled.span`
@@ -48,14 +56,14 @@ const FooterText = styled.span`
   font-family: 'SfProDisplayRegular'
   font-weight: 400;
   color: #3c3c3c;
-`
+`;
 
 const TitleText = styled.span`
   font-size: 28px;
   font-family: Gambetta;
   font-weight: 400;
   color: #3c3c3c;
-`
+`;
 
 const StyledModalOverlay = styled.div`
   position: fixed;
@@ -68,7 +76,7 @@ const StyledModalOverlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 1000; // High z-index to ensure it's above other elements
-`
+`;
 
 const StyledModal = styled.div`
   width: 700px;
@@ -76,7 +84,7 @@ const StyledModal = styled.div`
   color: white;
   border-radius: 16px;
   box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.04);
-`
+`;
 
 const StyledContentWrapper = styled.div`
   padding: 30px;
@@ -85,12 +93,12 @@ const StyledContentWrapper = styled.div`
   min-height: 207px;
   justify-content: space-between;
   gap: 10px;
-`
+`;
 
 type ChangelogItemProps = {
-  changeItems: string[]
-  date: string
-}
+  changeItems: string[];
+  date: string;
+};
 
 function ChangelogItem({ date, changeItems }: ChangelogItemProps) {
   return (
@@ -105,23 +113,23 @@ function ChangelogItem({ date, changeItems }: ChangelogItemProps) {
         </VStack>
       </VStack>
     </HStack>
-  )
+  );
 }
 
 const DateText = styled.span`
   font-size: 16px;
   text-transform: uppercase;
   color: #2e2e2e;
-`
+`;
 
 const ChangeItemText = styled.div`
   font-size: 15px;
   line-height: 1.4;
   color: #2e2e2e;
-`
+`;
 
 const HeaderText = styled.div`
   font-size: 19px;
-  font-family: 'SfProDisplayMedium';
+  font-family: "SfProDisplayMedium";
   color: #2e2e2e;
-`
+`;

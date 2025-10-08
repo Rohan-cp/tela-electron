@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient } from "@tanstack/react-query";
 
 // Create a client with sensible defaults
 export const queryClient = new QueryClient({
@@ -18,18 +18,18 @@ export const queryClient = new QueryClient({
       retry: 1,
     },
   },
-})
+});
 
 // Query keys factory for consistent key management
 export const queryKeys = {
   autocomplete: {
-    all: ['autocomplete'] as const,
+    all: ["autocomplete"] as const,
     suggestion: (context: string, currentSentence: string) =>
-      ['autocomplete', 'suggestion', context, currentSentence] as const,
+      ["autocomplete", "suggestion", context, currentSentence] as const,
   },
   transform: {
-    all: ['transform'] as const,
+    all: ["transform"] as const,
     text: (text: string, transformation: string) =>
-      ['transform', 'text', text, transformation] as const,
+      ["transform", "text", text, transformation] as const,
   },
-} as const
+} as const;
