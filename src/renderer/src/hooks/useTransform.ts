@@ -1,8 +1,10 @@
 import { useState, useCallback } from "react";
 import { Suggestion } from "@renderer/components/TextEditor";
+import { apiClient } from "@renderer/lib/api";
+import { useAuthContext } from "@renderer/contexts/AuthContext";
 
 export interface UseTransformProps {
-  quillRef: React.RefObject<any>;
+  quillRef: React.RefObject<unknown>;
   transformSelection: { index: number; length: number } | null;
   setSuggestion: (suggestion: Suggestion | null) => void;
   setShowToolbar: (show: boolean) => void;
@@ -13,7 +15,24 @@ export function useTransform({
   transformSelection,
   setSuggestion,
   setShowToolbar,
-}: UseTransformProps) {
+}: UseTransformProps): {
+  showLoader: boolean;
+  originalText: string;
+  suggestedText: string;
+  transformError: string | null;
+  retryCount: number;
+  isTransformModalOpen: boolean;
+  modalOriginalText: string;
+  modalTransformedText: string;
+  handleSubmitPromptToTransform: (
+    userTransformPrompt: string,
+    isRetry?: boolean,
+  ) => Promise<void>;
+  handleTransformAccept: (transformedText: string) => void;
+  handleTransformReject: () => void;
+  handleTransformModalClose: () => void;
+} {
+  const { userToken } = useAuthContext();
   const [showLoader, setShowLoader] = useState(false);
   const [originalText, setOriginalText] = useState("");
   const [suggestedText, setSuggestedText] = useState("");
@@ -26,55 +45,36 @@ export function useTransform({
   const handleSubmitPromptToTransform = useCallback(
     async (userTransformPrompt: string, isRetry: boolean = false) => {
       if (!quillRef.current) return;
-      const quill = quillRef.current.getEditor();
+
+      const quill = (
+        quillRef.current as { getEditor: () => unknown }
+      ).getEditor();
+
       if (!transformSelection || transformSelection.length === 0) return;
 
-      const originalText = quill.getText(
-        transformSelection.index,
-        transformSelection.length,
-      );
+      if (!quill || typeof quill !== "object" || !("getText" in quill)) {
+        throw new Error("Quill editor not available");
+      }
+
+      const originalText = (
+        quill as { getText: (index: number, length: number) => string }
+      ).getText(transformSelection.index, transformSelection.length);
 
       // Clear previous errors
       setTransformError(null);
       setShowLoader(true);
 
       try {
-        const response = await fetch("http://localhost:3001/api/transform", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ originalText, userTransformPrompt }),
-          signal: AbortSignal.timeout(30000), // 30 second timeout
+        // Set the auth token for this request
+        apiClient.setAuthToken(userToken);
+
+        const { transformedText, success } = await apiClient.post<{
+          transformedText: string;
+          success: boolean;
+        }>("/api/transform", {
+          originalText,
+          userTransformPrompt,
         });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-
-          // Handle specific error cases
-          if (response.status === 429) {
-            const retryAfter = errorData.retryAfter || 60;
-            throw new Error(
-              `Too many requests. Please wait ${retryAfter} seconds before trying again.`,
-            );
-          }
-
-          if (response.status === 400) {
-            throw new Error(
-              errorData.error || "Invalid request. Please check your input.",
-            );
-          }
-
-          if (response.status === 503) {
-            throw new Error(
-              "AI service is temporarily unavailable. Please try again later.",
-            );
-          }
-
-          throw new Error(errorData.error || "Failed to transform text");
-        }
-
-        const { transformedText, success } = await response.json();
 
         if (!success || !transformedText) {
           throw new Error(
@@ -135,16 +135,39 @@ export function useTransform({
         setShowLoader(false);
       }
     },
-    [quillRef, transformSelection, setSuggestion, setShowToolbar, retryCount],
+    [
+      quillRef,
+      transformSelection,
+      setSuggestion,
+      setShowToolbar,
+      retryCount,
+      userToken,
+    ],
   );
 
   const handleTransformAccept = useCallback(
     (transformedText: string) => {
       if (!quillRef.current || !transformSelection) return;
 
-      const quill = quillRef.current.getEditor();
-      quill.deleteText(transformSelection.index, transformSelection.length);
-      quill.insertText(transformSelection.index, transformedText);
+      const quill = (
+        quillRef.current as { getEditor: () => unknown }
+      ).getEditor();
+
+      if (
+        !quill ||
+        typeof quill !== "object" ||
+        !("deleteText" in quill) ||
+        !("insertText" in quill)
+      ) {
+        return;
+      }
+
+      (
+        quill as { deleteText: (index: number, length: number) => void }
+      ).deleteText(transformSelection.index, transformSelection.length);
+      (
+        quill as { insertText: (index: number, text: string) => void }
+      ).insertText(transformSelection.index, transformedText);
 
       // Clear the selection
       // Note: setTransformSelection is not available in this scope

@@ -153,9 +153,9 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         />
         <div
           className="right-prompt-toolbar-btn"
-          onClick={() =>
-            !showLoader && handleSubmitPromptToTransform(userTransformPrompt)
-          }
+          onClick={() => {
+            !showLoader && handleSubmitPromptToTransform(userTransformPrompt);
+          }}
           style={{ opacity: showLoader ? 0.5 : 1 }}
         >
           {showLoader ? (

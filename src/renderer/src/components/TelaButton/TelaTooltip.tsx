@@ -13,7 +13,8 @@ type Props = {
 };
 
 export default function Tooltip({ className, dataTestId }: Props) {
-  const { setIsChangelogModalOpen, setIsFeedbackFormModalOpen } = useModalContext();
+  const { setIsChangelogModalOpen, setIsFeedbackFormModalOpen } =
+    useModalContext();
   const [isNewVersionAvailable] = useState(true);
   const [userMode] = useState("editor");
 

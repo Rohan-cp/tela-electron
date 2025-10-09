@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useAuthContext } from "@renderer/contexts/AuthContext";
 import telaIconRound from "../assets/telaIconRound.svg";
 import googleIcon from "../assets/google-icon.svg";
@@ -10,7 +10,8 @@ export default function AuthPage() {
   const user = true;
   const ready = true;
   const disableLogin = !ready || (ready && authenticated);
-  const { setIsUserAuthenticated, setUserEmail, setUserToken } = useAuthContext();
+  const { setIsUserAuthenticated, setUserEmail, setUserToken } =
+    useAuthContext();
 
   // Notify main process of route change when component mounts
   useEffect(() => {
@@ -21,12 +22,10 @@ export default function AuthPage() {
     window.electron.webFrame.setZoomFactor(1);
   }, []);
 
-  // Listen for auth success from the main process
-  useEffect(() => {
-    const handleAuthSuccess = (_event: any, userData: any) => {
+  // Memoized auth success handler
+  const handleAuthSuccess = useCallback(
+    (_event: any, userData: any) => {
       if (userData && userData.email) {
-        // Log all user details we've received
-
         // Store in context
         setUserEmail(userData.email);
         setUserToken(userData.token || null);
@@ -39,25 +38,31 @@ export default function AuthPage() {
       } else {
         console.error("[AUTH] Missing required user data (email):", userData);
       }
-    };
+    },
+    [setUserEmail, setUserToken, setIsUserAuthenticated],
+  );
 
+  // Listen for auth success from the main process
+  useEffect(() => {
     window.api.onAuthSuccess(handleAuthSuccess);
 
-    // Log when component unmounts
     return () => {
       window.api.removeAuthSuccessListener(handleAuthSuccess);
     };
-  }, [setIsUserAuthenticated, setUserEmail, setUserToken]);
+  }, [handleAuthSuccess]);
 
-  // Handle Google login button click - Real OAuth flow
-  const handleGoogleLogin = (e) => {
-    e.preventDefault();
+  // Memoized Google login handler
+  const handleGoogleLogin = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
 
-    if (!disableLogin) {
-      // Initiate real Google OAuth flow
-      window.api.initiateGoogleAuth();
-    }
-  };
+      if (!disableLogin) {
+        // Initiate real Google OAuth flow
+        window.api.initiateGoogleAuth();
+      }
+    },
+    [disableLogin],
+  );
 
   useEffect(() => {
     if (authenticated && user) {
