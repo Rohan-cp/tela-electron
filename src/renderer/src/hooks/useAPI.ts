@@ -8,21 +8,21 @@ import {
   type TransformResponse,
 } from "@renderer/lib/api";
 import { queryKeys } from "@renderer/lib/queryClient";
+import { useAuthContext } from "@renderer/contexts/AuthContext";
 
 // Autocomplete API hook
 export function useAutocomplete() {
+  const { userToken } = useAuthContext();
+  
   return useMutation<AutocompleteResponse, Error, AutocompleteRequest>({
     mutationFn: async (data) => {
-      console.log(
-        "🌐 Making API call to autocomplete endpoint with data:",
-        data,
-      );
-      const result = await apiClient.post<AutocompleteResponse>(
+      // Set the auth token for this request
+      apiClient.setAuthToken(userToken);
+      
+      return await apiClient.post<AutocompleteResponse>(
         API_ENDPOINTS.AUTOCOMPLETE,
         data,
       );
-      console.log("🌐 API response received:", result);
-      return result;
     },
     // Don't cache autocomplete results since they're contextual
     gcTime: 0,
@@ -32,8 +32,13 @@ export function useAutocomplete() {
 
 // Transform API hook
 export function useTransform() {
+  const { userToken } = useAuthContext();
+  
   return useMutation<TransformResponse, Error, TransformRequest>({
     mutationFn: async (data) => {
+      // Set the auth token for this request
+      apiClient.setAuthToken(userToken);
+      
       return apiClient.post<TransformResponse>(API_ENDPOINTS.TRANSFORM, data);
     },
     // Don't cache transform results since they're contextual
