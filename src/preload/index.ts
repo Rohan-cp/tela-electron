@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 const { contextBridge, ipcRenderer } = require("electron");
-const { electronAPI, webFrame } = require("@electron-toolkit/preload");
+const { electronAPI } = require("@electron-toolkit/preload");
 
 // Custom APIs for renderer
 const api = {

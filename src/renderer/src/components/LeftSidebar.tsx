@@ -70,7 +70,7 @@ export default function LeftSidebar({
                       child.selection.index,
                     ) && <Asterisk>*</Asterisk>}
                     <FileNavSubheading
-                      onClick={(e) => {
+                      onClick={(e): void => {
                         e.stopPropagation();
                         handleHeaderClick(child);
                       }}
@@ -94,7 +94,7 @@ export default function LeftSidebar({
 }
 
 const FileNavSubheading = styled.div<{ active: boolean }>`
-  color: ${({ active }) => (active ? secondary : tertiary)};
+  color: ${({ active }): string => (active ? secondary : tertiary)};
   font-weight: 500;
   font-size: 15px;
   white-space: nowrap;

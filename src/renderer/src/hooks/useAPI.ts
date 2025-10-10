@@ -9,7 +9,9 @@ import {
 } from "@renderer/lib/api";
 import { useAuthContext } from "@renderer/contexts/AuthContext";
 
-export function useAutocomplete() {
+export function useAutocomplete(): ReturnType<
+  typeof useMutation<AutocompleteResponse, Error, AutocompleteRequest>
+> {
   const { userToken } = useAuthContext();
 
   return useMutation<AutocompleteResponse, Error, AutocompleteRequest>({
@@ -22,26 +24,28 @@ export function useAutocomplete() {
       );
     },
     gcTime: 0,
-    staleTime: 0,
   });
 }
 
-export function useTransform() {
+export function useTransform(): ReturnType<
+  typeof useMutation<TransformResponse, Error, TransformRequest>
+> {
   const { userToken } = useAuthContext();
 
   return useMutation<TransformResponse, Error, TransformRequest>({
     mutationFn: async (data) => {
-      // Set the auth token for this request
       apiClient.setAuthToken(userToken);
 
       return apiClient.post<TransformResponse>(API_ENDPOINTS.TRANSFORM, data);
     },
     gcTime: 0,
-    staleTime: 0,
   });
 }
 
-export function useAPI() {
+export function useAPI(): {
+  autocomplete: ReturnType<typeof useAutocomplete>;
+  transform: ReturnType<typeof useTransform>;
+} {
   return {
     autocomplete: useAutocomplete(),
     transform: useTransform(),

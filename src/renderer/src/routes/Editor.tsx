@@ -14,6 +14,7 @@ import RightSidebar from "@renderer/components/RightSidebar";
 import TextEditor, { Suggestion } from "@renderer/components/TextEditor";
 import EditorProvider from "@renderer/contexts/EditorContext";
 import { useModalContext } from "@renderer/contexts/ModalContext";
+import { LLMAutocompleteState } from "@renderer/hooks/useLLMAutocomplete";
 import { Subtree } from "@renderer/utils/textOps";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
@@ -25,10 +26,8 @@ export default function Editor(): JSX.Element {
   );
   const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
 
-  // main text editor value
   const [textValue, setTextValue] = useState("");
 
-  // modal state
   const {
     isFeedbackFormModalOpen,
     setIsFeedbackFormModalOpen,
@@ -36,16 +35,14 @@ export default function Editor(): JSX.Element {
     setIsChangelogModalOpen,
   } = useModalContext();
 
-  // file stats state
   const [charCount, setCharCount] = useState(0);
   const [wordCount, setWordCount] = useState(0);
   const [lineCount, setLineCount] = useState(1);
 
-  // suggestions for BottomSidebar
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
-  const [autocompleteState, setAutocompleteState] = useState<any>(null);
+  const [autocompleteState, setAutocompleteState] =
+    useState<LLMAutocompleteState | null>(null);
 
-  // file tree for LeftSidebar
   const [fileTree, setFileTree] = useState<Subtree[]>([]);
 
   const [isScrolling, setIsScrolling] = useState<boolean>(false);
@@ -55,7 +52,6 @@ export default function Editor(): JSX.Element {
   const scrollTimeoutRef = useRef<number | null>(null);
   const saveStatusTimeoutRef = useRef<number | null>(null);
 
-  // Function to reset editor state for new file
   const createNewFile = useCallback(() => {
     setTextValue("");
     setPageTitle("CLAS 104");
@@ -72,7 +68,6 @@ export default function Editor(): JSX.Element {
     window.electron.webFrame.setZoomFactor(1);
   }, []);
 
-  // Clear save status after delay
   useEffect(() => {
     if (saveStatus && saveStatusTimeoutRef.current === null) {
       saveStatusTimeoutRef.current = window.setTimeout(() => {
@@ -92,7 +87,7 @@ export default function Editor(): JSX.Element {
   useEffect(() => {
     const handleNew = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "n") {
-        event.preventDefault(); // Prevent default browser new window
+        event.preventDefault();
         createNewFile();
       }
     };
@@ -118,7 +113,6 @@ export default function Editor(): JSX.Element {
     [],
   );
 
-  // simple YAML front matter serializer
   const serializeDocument = useCallback(
     (title: string, description: string, body: string): string => {
       const safe = (val: string) => (val ?? "").replace(/\r\n|\r/g, "\n");
@@ -129,7 +123,6 @@ export default function Editor(): JSX.Element {
     [],
   );
 
-  // simple YAML front matter parser
   const parseDocument = useCallback(
     (
       content: string,
@@ -190,7 +183,6 @@ export default function Editor(): JSX.Element {
     };
   }, [handleScroll]);
 
-  // Handle file created callback
   const handleFileCreated = useCallback(
     (_event: Electron.IpcRendererEvent, { filePath }: { filePath: string }) => {
       setCurrentFilePath(filePath);
@@ -203,9 +195,8 @@ export default function Editor(): JSX.Element {
   useEffect(() => {
     const handleSave = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "s") {
-        event.preventDefault(); // Prevent the default browser save action
+        event.preventDefault();
         if (currentFilePath) {
-          // Update existing file
           const serialized = serializeDocument(
             pageTitle,
             pageDescription,
@@ -215,7 +206,6 @@ export default function Editor(): JSX.Element {
           const fileName = currentFilePath.split("/").pop() ?? "file";
           setSaveStatus(`saved ${fileName}`);
         } else {
-          // Create new file
           const serialized = serializeDocument(
             pageTitle,
             pageDescription,
@@ -230,7 +220,6 @@ export default function Editor(): JSX.Element {
     document.addEventListener("keydown", handleSave);
     window.api.onFileCreated(handleFileCreated);
 
-    // Cleanup function
     return () => {
       document.removeEventListener("keydown", handleSave);
       window.api.removeFileCreatedListener(handleFileCreated);
@@ -241,7 +230,7 @@ export default function Editor(): JSX.Element {
   useEffect(() => {
     const handleOpen = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "o") {
-        event.preventDefault(); // Prevent the default browser open action
+        event.preventDefault();
         window.api.triggerOpenDocument();
       }
     };
@@ -249,8 +238,10 @@ export default function Editor(): JSX.Element {
 
     const handleFileOpened = (
       _event: Electron.IpcRendererEvent,
-      { filePath, content }: { filePath: string; content: string },
+      ...args: unknown[]
     ) => {
+      const data = args[0] as { filePath: string; content: string };
+      const { filePath, content } = data;
       const parsed = parseDocument(content);
       setTextValue(parsed.body ?? "");
       const fallbackTitle =
@@ -259,7 +250,6 @@ export default function Editor(): JSX.Element {
       if (parsed.description !== undefined) {
         setPageDescription(parsed.description);
       } else {
-        // keep existing or fallback
         setPageDescription((prev) => prev ?? "");
       }
       setCurrentFilePath(filePath);
@@ -276,7 +266,7 @@ export default function Editor(): JSX.Element {
   useEffect(() => {
     const handleMinimize = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "z") {
-        event.preventDefault(); // Prevent the default browser open action
+        event.preventDefault();
         window.electron.webFrame.setZoomFactor(1);
       }
     };
@@ -287,7 +277,6 @@ export default function Editor(): JSX.Element {
     };
   }, []);
 
-  // Notify main process of route change when Editor mounts
   useEffect(() => {
     window.api.notifyRouteChange("/");
   }, []);
@@ -334,16 +323,12 @@ export default function Editor(): JSX.Element {
                 id="documentName"
                 value={pageTitle}
                 onChange={handleTitleChange}
-                onFocus={(e) => console.log("Title input focused")}
-                onBlur={(e) => console.log("Title input blurred")}
                 placeholder="enter page title..."
               />
               <StyledDescriptionInput
                 id="documentDescription"
                 value={pageDescription}
                 onChange={handleDescriptionChange}
-                onFocus={(e) => console.log("Description input focused")}
-                onBlur={(e) => console.log("Description input blurred")}
                 placeholder="enter page description..."
               />
               <ScrollableContent
@@ -357,7 +342,9 @@ export default function Editor(): JSX.Element {
                   setTextValue={setTextValue}
                   setSuggestion={setSuggestion}
                   setFileTree={setFileTree}
-                  setAutocompleteState={setAutocompleteState}
+                  setAutocompleteState={(state: unknown) =>
+                    setAutocompleteState(state as LLMAutocompleteState | null)
+                  }
                   fileTree={fileTree}
                   suggestion={suggestion || undefined}
                   textValue={textValue}
@@ -370,7 +357,7 @@ export default function Editor(): JSX.Element {
                 isScrolling={isScrolling}
                 scrollPercent={scrollPercent}
                 saveStatus={saveStatus}
-                autocompleteState={autocompleteState}
+                autocompleteState={autocompleteState || undefined}
               />
             </MainContentWrapper>
             <RightSidebar />

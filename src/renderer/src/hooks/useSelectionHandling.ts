@@ -11,7 +11,17 @@ import {
 import { ToolbarPosition } from "@renderer/components/FloatingToolbar";
 
 export interface UseSelectionHandlingProps {
-  quillRef: React.RefObject<any>;
+  quillRef: React.RefObject<{
+    getEditor: () => {
+      getSelection: () => { index: number; length: number } | null;
+      getText: () => string;
+      getHTML: () => string;
+      getBounds: (
+        index: number,
+        length: number,
+      ) => { bottom: number; left: number } | null;
+    };
+  }>;
   setSelectedStats: (
     stats: { charCount: number; wordCount: number; lineCount: number } | null,
   ) => void;
@@ -20,7 +30,26 @@ export interface UseSelectionHandlingProps {
 export function useSelectionHandling({
   quillRef,
   setSelectedStats,
-}: UseSelectionHandlingProps) {
+}: UseSelectionHandlingProps): {
+  showToolbar: boolean;
+  setShowToolbar: (show: boolean) => void;
+  toolbarPosition: ToolbarPosition;
+  setToolbarPosition: (position: ToolbarPosition) => void;
+  transformSelection: { index: number; length: number } | null;
+  setTransformSelection: (
+    selection: { index: number; length: number } | null,
+  ) => void;
+  handleSelectionChange: (
+    range: { index: number; length: number } | null,
+    source: unknown,
+    editor: { getText: () => string; getHTML: () => string },
+  ) => void;
+  handleUpdatingSelectedStats: (
+    range: { index: number; length: number },
+    editor: { getText: () => string },
+  ) => void;
+  scrollToHeaderHandler: () => void;
+} {
   const [showToolbar, setShowToolbar] = useState(false);
   const [toolbarPosition, setToolbarPosition] = useState<ToolbarPosition>({
     top: 0,
@@ -39,7 +68,10 @@ export function useSelectionHandling({
   } = useEditorContext();
 
   const handleUpdatingSelectedStats = useCallback(
-    (range: any, editor: any) => {
+    (
+      range: { index: number; length: number },
+      editor: { getText: () => string },
+    ) => {
       if (range) {
         const { index, length } = range;
         if (length > 0) {
@@ -62,7 +94,11 @@ export function useSelectionHandling({
   );
 
   const handleSelectionChange = useCallback(
-    (range: any, _source: any, editor: any) => {
+    (
+      range: { index: number; length: number } | null,
+      _source: unknown,
+      editor: { getText: () => string; getHTML: () => string },
+    ) => {
       if (range) {
         const { index, length } = range;
 
