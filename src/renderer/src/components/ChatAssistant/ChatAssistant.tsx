@@ -165,11 +165,11 @@ const ChatAssistant = ({
   return (
     <div
       className={`chat-assistant-modal ${isOpen ? "visible" : "hidden"}`}
-      style={{ 
+      style={{
         backgroundImage: `url(${chatBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
       onClick={handleContainerClick}
     >

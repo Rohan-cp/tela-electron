@@ -4,10 +4,12 @@ interface Window {
     startGoogleAuth: () => Promise<{ success: boolean; error?: string }>;
     checkAuthStatus: () => Promise<{
       authenticated: boolean;
-      user?: any;
+      user?: { email: string; token?: string };
       timedOut?: boolean;
     }>;
-    onAuthSuccess: (callback: (userData: any) => void) => () => void;
+    onAuthSuccess: (
+      callback: (userData: { email: string; token?: string }) => void,
+    ) => () => void;
     // Add other API methods as needed
   };
 }

@@ -60,12 +60,10 @@ export function useTransform({
         quill as { getText: (index: number, length: number) => string }
       ).getText(transformSelection.index, transformSelection.length);
 
-      // Clear previous errors
       setTransformError(null);
       setShowLoader(true);
 
       try {
-        // Set the auth token for this request
         apiClient.setAuthToken(userToken);
 
         const { transformedText, success } = await apiClient.post<{
@@ -82,7 +80,6 @@ export function useTransform({
           );
         }
 
-        // Remove quotes from the transformedText and handle falsy values
         const cleanedTransformedText = transformedText.replace(/^"|"$/g, "");
 
         setOriginalText(originalText);
@@ -93,12 +90,11 @@ export function useTransform({
           suggestion: cleanedTransformedText,
         });
 
-        // Open modal with the transformation
         setModalOriginalText(originalText);
         setModalTransformedText(cleanedTransformedText);
         setIsTransformModalOpen(true);
-        setShowToolbar(false); // Close the floating toolbar
-        setRetryCount(0); // Reset retry count on success
+        setShowToolbar(false);
+        setRetryCount(0);
       } catch (error: unknown) {
         console.error("Error transforming text:", error);
 
@@ -114,7 +110,6 @@ export function useTransform({
 
         setTransformError(errorMessage);
 
-        // Auto-retry for network errors (up to 2 times)
         if (
           !isRetry &&
           retryCount < 2 &&
@@ -129,7 +124,7 @@ export function useTransform({
               handleSubmitPromptToTransform(userTransformPrompt, true);
             },
             1000 * (retryCount + 1),
-          ); // Exponential backoff
+          );
         }
       } finally {
         setShowLoader(false);
@@ -169,15 +164,11 @@ export function useTransform({
         quill as { insertText: (index: number, text: string) => void }
       ).insertText(transformSelection.index, transformedText);
 
-      // Clear the selection
-      // Note: setTransformSelection is not available in this scope
     },
     [quillRef, transformSelection],
   );
 
   const handleTransformReject = useCallback(() => {
-    // Just close the modal, no changes needed
-    // Note: setTransformSelection is not available in this scope
   }, []);
 
   const handleTransformModalClose = useCallback(() => {

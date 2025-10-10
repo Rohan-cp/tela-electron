@@ -1,19 +1,21 @@
 import styled from "styled-components";
 import { useEffect, useCallback } from "react";
 import { useAuthContext } from "@renderer/contexts/AuthContext";
+// @ts-ignore - Asset import type declarations not properly configured
 import telaIconRound from "../assets/telaIconRound.svg";
+// @ts-ignore - Asset import type declarations not properly configured
 import googleIcon from "../assets/google-icon.svg";
+// @ts-ignore - Asset import type declarations not properly configured
 import authBackground from "../assets/auth-bg.png";
 
-export default function AuthPage() {
+export default function AuthPage(): JSX.Element {
   const authenticated = false;
-  const user = true;
+  const user = null;
   const ready = true;
   const disableLogin = !ready || (ready && authenticated);
   const { setIsUserAuthenticated, setUserEmail, setUserToken } =
     useAuthContext();
 
-  // Notify main process of route change when component mounts
   useEffect(() => {
     window.api.notifyRouteChange("/");
   }, []);
@@ -22,42 +24,34 @@ export default function AuthPage() {
     window.electron.webFrame.setZoomFactor(1);
   }, []);
 
-  // Memoized auth success handler
   const handleAuthSuccess = useCallback(
-    (_event: any, userData: any) => {
+    (_event: unknown, userData: { email: string; token?: string }) => {
       if (userData && userData.email) {
-        // Store in context
         setUserEmail(userData.email);
         setUserToken(userData.token || null);
         setIsUserAuthenticated(true);
 
-        // Make sure the redirect happens after state is updated
         setTimeout(() => {
           window.location.href = "/editor";
         }, 500);
-      } else {
-        console.error("[AUTH] Missing required user data (email):", userData);
       }
     },
     [setUserEmail, setUserToken, setIsUserAuthenticated],
   );
 
-  // Listen for auth success from the main process
   useEffect(() => {
     window.api.onAuthSuccess(handleAuthSuccess);
 
-    return () => {
+    return (): void => {
       window.api.removeAuthSuccessListener(handleAuthSuccess);
     };
   }, [handleAuthSuccess]);
 
-  // Memoized Google login handler
   const handleGoogleLogin = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent): void => {
       e.preventDefault();
 
       if (!disableLogin) {
-        // Initiate real Google OAuth flow
         window.api.initiateGoogleAuth();
       }
     },
@@ -66,16 +60,15 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (authenticated && user) {
-      const email = (user as any)?.email ?? "rohancp9@02.com";
+      const email = (user as { email?: string })?.email ?? "rohancp9@02.com";
       if (email) {
         setUserEmail(email);
         setIsUserAuthenticated(true);
         window.location.href = "/";
       }
     }
-  }, [authenticated, user]);
+  }, [authenticated, user, setUserEmail, setIsUserAuthenticated]);
 
-  // Add a check for pending auth data
   useEffect(() => {
     window.api.checkAuthStatus();
   }, []);

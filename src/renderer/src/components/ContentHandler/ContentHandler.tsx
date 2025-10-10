@@ -102,27 +102,24 @@ export function useContentHandler({
       return;
     }
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent): void => {
       if (event.key === "Tab") {
-        event.preventDefault(); // Prevent default tab behavior
+        event.preventDefault();
         event.stopPropagation();
-        event.stopImmediatePropagation(); // Stop other listeners from handling this event
+        event.stopImmediatePropagation();
         handleTabPress();
-        return false;
       } else if (event.key === "Escape") {
         event.preventDefault();
         event.stopPropagation();
-        event.stopImmediatePropagation(); // Stop other listeners from handling this event
+        event.stopImmediatePropagation();
         handleEscapePress();
-        return false;
       }
     };
 
     const editorElement = quill.root;
-    // Use capture phase to ensure this listener runs first
     editorElement.addEventListener("keydown", handleKeyDown, true);
 
-    return () => {
+    return (): void => {
       editorElement.removeEventListener("keydown", handleKeyDown, true);
     };
   }, [quillRef, handleTabPress, handleEscapePress]);

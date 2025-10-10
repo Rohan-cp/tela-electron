@@ -192,7 +192,9 @@ function createAuthCallbackServer(): Server {
   if (authServer) {
     try {
       authServer.close();
-    } catch (err) {}
+    } catch (err) {
+      console.error("Error closing auth server:", err);
+    }
   }
 
   const server = createServer((req, res) => {
@@ -277,6 +279,7 @@ function createAuthCallbackServer(): Server {
   server.on("listening", () => {
     const address = server.address();
     if (address && typeof address === "object" && "port" in address) {
+      console.log(`Auth server listening on port ${address.port}`);
     }
   });
 
@@ -321,7 +324,9 @@ function cleanupAllResources(): void {
     try {
       authServer.close();
       authServer = null;
-    } catch (err) {}
+    } catch (err) {
+      console.error("Error closing auth server:", err);
+    }
   }
 
   // Close all auth windows
@@ -329,7 +334,9 @@ function cleanupAllResources(): void {
     if (win && !win.isDestroyed()) {
       try {
         win.close();
-      } catch (err) {}
+      } catch (err) {
+        console.error("Error closing auth server:", err);
+      }
     }
   });
   authWindows = [];
@@ -339,7 +346,9 @@ function cleanupAllResources(): void {
     try {
       mainWindow.close();
       mainWindow = null;
-    } catch (err) {}
+    } catch (err) {
+      console.error("Error closing auth server:", err);
+    }
   }
 }
 

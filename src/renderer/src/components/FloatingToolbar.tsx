@@ -34,14 +34,10 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   setIsInteractingWithToolbar,
   originalText,
   suggestedText,
-  transformError: _transformError,
-  retryCount: _retryCount,
 }) => {
   const [userTransformPrompt, setUserTransformPrompt] = useState("");
 
-  // Add useEffect to clear the prompt when toolbar is closed
   useEffect(() => {
-    // If toolbar is hidden or transform view is not selected, clear the prompt
     if (!showToolbar || !isTransformSelected) {
       setUserTransformPrompt("");
     }

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { apiClient } from "../lib/api";
 import { useAuthContext } from "../contexts/AuthContext";
 
-export const useApiClient = () => {
+export const useApiClient = (): typeof apiClient => {
   const { userToken } = useAuthContext();
 
   useEffect(() => {

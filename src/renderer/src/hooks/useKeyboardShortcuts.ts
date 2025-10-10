@@ -1,7 +1,16 @@
 import { useEffect, useCallback } from "react";
 
 export interface UseKeyboardShortcutsProps {
-  quillRef: React.RefObject<any>;
+  quillRef: React.RefObject<{
+    getEditor: () => {
+      getSelection: () => { index: number; length: number } | null;
+      getText: (index: number, length: number) => string;
+      getBounds: (
+        index: number,
+        length: number,
+      ) => { bottom: number; left: number } | null;
+    };
+  }>;
   formatHeader: (level: number) => void;
   setTransformSelection: (
     selection: { index: number; length: number } | null,
@@ -22,9 +31,9 @@ export function useKeyboardShortcuts({
   setIsTransformSelected,
   setSelectedText,
   setIsChatAssistantOpen,
-}: UseKeyboardShortcutsProps) {
+}: UseKeyboardShortcutsProps): void {
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
+    (e: KeyboardEvent): void => {
       const quill = quillRef.current?.getEditor();
       if (!quill) return;
 
@@ -97,7 +106,7 @@ export function useKeyboardShortcuts({
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
-    return () => {
+    return (): void => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);

@@ -36,7 +36,7 @@ export function extractHeaders(textContent: string): HeaderLine[] {
   const headers: HeaderLine[] = [];
   let currentIndex = 0;
 
-  while (true) {
+  while (currentIndex < textContent.length) {
     const h1Start = textContent.indexOf("<h1>", currentIndex);
     const h2Start = textContent.indexOf("<h2>", currentIndex);
 

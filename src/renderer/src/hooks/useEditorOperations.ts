@@ -27,7 +27,12 @@ export function useEditorOperations({
   setWordCount,
   setLineCount,
   setFileTree,
-}: UseEditorOperationsProps) {
+}: UseEditorOperationsProps): {
+  quillRef: React.RefObject<ReactQuill>;
+  updateFileStats: () => void;
+  getEditorStats: (editor: { getText: () => string }) => EditorStats;
+  formatHeader: (level: number) => void;
+} {
   const quillRef = useRef<ReactQuill>(null);
 
   const updateFileStats = useCallback(() => {
@@ -56,14 +61,17 @@ export function useEditorOperations({
     setLineCount(lineCount);
   }, [setCharCount, setWordCount, setLineCount, setFileTree]);
 
-  const getEditorStats = useCallback((editor: any): EditorStats => {
-    const fileText = editor.getText();
-    const wordCount = countWords(fileText ?? "");
-    const lineCount = countLineBreaks(fileText ?? "");
-    const charCount = fileText.length;
+  const getEditorStats = useCallback(
+    (editor: { getText: () => string }): EditorStats => {
+      const fileText = editor.getText();
+      const wordCount = countWords(fileText ?? "");
+      const lineCount = countLineBreaks(fileText ?? "");
+      const charCount = fileText.length;
 
-    return { charCount, wordCount, lineCount };
-  }, []);
+      return { charCount, wordCount, lineCount };
+    },
+    [],
+  );
 
   const formatHeader = useCallback((level: number) => {
     const quill = quillRef.current?.getEditor();

@@ -6,7 +6,10 @@ declare global {
     api: {
       registerCreateDocumentClick: (callback: () => void) => void;
       documentCreated: (
-        callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void,
+        callback: (
+          event: Electron.IpcRendererEvent,
+          ...args: unknown[]
+        ) => void,
       ) => void;
       triggerCreateDocument: (textVal: string) => void;
       triggerSaveDocument: (filePath: string, textVal: string) => void;
@@ -24,7 +27,10 @@ declare global {
         ) => void,
       ) => void;
       removeFileOpenedListener: (
-        callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void,
+        callback: (
+          event: Electron.IpcRendererEvent,
+          ...args: unknown[]
+        ) => void,
       ) => void;
       removeFileCreatedListener: (
         callback: (
@@ -35,10 +41,16 @@ declare global {
       notifyRouteChange: (route: string) => void;
       initiateGoogleAuth: () => void;
       onAuthSuccess: (
-        callback: (event: Electron.IpcRendererEvent, userData: any) => void,
+        callback: (
+          event: Electron.IpcRendererEvent,
+          userData: { email: string; token?: string },
+        ) => void,
       ) => void;
       removeAuthSuccessListener: (
-        callback: (event: Electron.IpcRendererEvent, userData: any) => void,
+        callback: (
+          event: Electron.IpcRendererEvent,
+          userData: { email: string; token?: string },
+        ) => void,
       ) => void;
       checkAuthStatus: () => void;
     };

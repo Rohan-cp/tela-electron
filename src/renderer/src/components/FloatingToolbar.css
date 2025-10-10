@@ -278,7 +278,6 @@ input::placeholder {
   border: 0.4px solid #fff;
 }
 
-/* Error message styles */
 .error-message {
   position: absolute;
   top: 100%;
@@ -306,7 +305,6 @@ input::placeholder {
   font-style: italic;
 }
 
-/* Loading spinner */
 .loading-spinner {
   width: 16px;
   height: 16px;
@@ -321,7 +319,6 @@ input::placeholder {
   100% { transform: rotate(360deg); }
 }
 
-/* Disabled input state */
 .input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
