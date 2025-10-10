@@ -18,15 +18,19 @@ import { LLMAutocompleteState } from "@renderer/hooks/useLLMAutocomplete";
 import { Subtree } from "@renderer/utils/textOps";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import InitialPrompt from "@renderer/components/InitialPrompt/InitialPrompt";
+import ShimmerMessage from "@renderer/components/ShimmerMessage";
+import { useChat } from "@renderer/hooks/useChat";
 
 export default function Editor(): JSX.Element {
-  const [pageTitle, setPageTitle] = useState<string>("Daredevil");
-  const [pageDescription, setPageDescription] = useState<string>(
-    "The Man without Fear",
-  );
+  const [pageTitle, setPageTitle] = useState<string>("");
+  const [pageDescription, setPageDescription] = useState<string>("");
   const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
 
   const [textValue, setTextValue] = useState("");
+  const [showInitialPrompt, setShowInitialPrompt] = useState<boolean>(true);
+  const [isProcessingInitialMessage, setIsProcessingInitialMessage] =
+    useState<boolean>(false);
 
   const {
     isFeedbackFormModalOpen,
@@ -34,6 +38,13 @@ export default function Editor(): JSX.Element {
     isChangelogModalOpen,
     setIsChangelogModalOpen,
   } = useModalContext();
+
+  const {
+    startNewConversation,
+    sendMessage,
+    isSendingMessage,
+    isCreatingConversation,
+  } = useChat();
 
   const [charCount, setCharCount] = useState(0);
   const [wordCount, setWordCount] = useState(0);
@@ -51,22 +62,105 @@ export default function Editor(): JSX.Element {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<number | null>(null);
   const saveStatusTimeoutRef = useRef<number | null>(null);
+  const quillRef = useRef<{ getEditor: () => unknown } | null>(null);
 
   const createNewFile = useCallback(() => {
+    // Clear the Quill editor's content first
+    if (quillRef.current) {
+      const quill = quillRef.current.getEditor();
+      if (
+        quill &&
+        typeof quill === "object" &&
+        "setText" in quill &&
+        typeof quill.setText === "function"
+      ) {
+        quill.setText("");
+      }
+    }
+
     setTextValue("");
-    setPageTitle("CLAS 104");
-    setPageDescription("Notes on classical mythology");
+    setPageTitle("");
+    setPageDescription("");
     setCurrentFilePath(null);
     setFileTree([]);
     setCharCount(0);
     setWordCount(0);
     setLineCount(1);
-    setSaveStatus("new file created");
+    setSaveStatus(null);
+    setShowInitialPrompt(true);
   }, []);
+
+  const handleInitialPromptSubmit = useCallback(
+    async (message: string) => {
+      try {
+        // Hide the prompt and show processing state
+        setShowInitialPrompt(false);
+        setIsProcessingInitialMessage(true);
+
+        // Create a new conversation
+        const conversation = await startNewConversation(
+          "New Document",
+          undefined,
+        );
+
+        // Send the first message with empty document content since we're starting from scratch
+        const response = await sendMessage(message, "", conversation.id);
+
+        // Extract the response text from the assistant's message
+        const assistantMessage = response.message;
+        if (assistantMessage && assistantMessage.content) {
+          // Insert the HTML response into the document using Quill's clipboard API
+          if (quillRef.current) {
+            const quill = quillRef.current.getEditor();
+            // Type guard to check if quill has the necessary methods
+            if (
+              quill &&
+              typeof quill === "object" &&
+              "clipboard" in quill &&
+              quill.clipboard &&
+              typeof quill.clipboard === "object" &&
+              "dangerouslyPasteHTML" in quill.clipboard &&
+              typeof quill.clipboard.dangerouslyPasteHTML === "function" &&
+              "setText" in quill &&
+              typeof quill.setText === "function"
+            ) {
+              // Clear existing content first
+              quill.setText("");
+              // Insert HTML content at the beginning
+              quill.clipboard.dangerouslyPasteHTML(0, assistantMessage.content);
+            } else {
+              // Fallback to plain text if clipboard API is not available
+              setTextValue(assistantMessage.content);
+            }
+          } else {
+            // Fallback if quillRef is not ready
+            setTextValue(assistantMessage.content);
+          }
+        }
+
+        setIsProcessingInitialMessage(false);
+      } catch (error) {
+        console.error("Error processing initial message:", error);
+        setIsProcessingInitialMessage(false);
+        setShowInitialPrompt(true); // Show the prompt again on error
+      }
+    },
+    [startNewConversation, sendMessage],
+  );
 
   useEffect(() => {
     window.electron.webFrame.setZoomFactor(1);
   }, []);
+
+  // Hide initial prompt if there's content or if file is opened
+  // Show initial prompt if there's no content and no file is opened (unless processing)
+  useEffect(() => {
+    if (textValue.trim() !== "" || currentFilePath !== null) {
+      setShowInitialPrompt(false);
+    } else if (!isProcessingInitialMessage) {
+      setShowInitialPrompt(true);
+    }
+  }, [textValue, currentFilePath, isProcessingInitialMessage]);
 
   useEffect(() => {
     if (saveStatus && saveStatusTimeoutRef.current === null) {
@@ -101,9 +195,14 @@ export default function Editor(): JSX.Element {
 
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setPageTitle(e.target.value);
+      const value = e.target.value;
+      setPageTitle(value);
+      // Hide initial prompt when user starts typing
+      if (value.trim() !== "" && showInitialPrompt) {
+        setShowInitialPrompt(false);
+      }
     },
-    [],
+    [showInitialPrompt],
   );
 
   const handleDescriptionChange = useCallback(
@@ -319,46 +418,66 @@ export default function Editor(): JSX.Element {
           <Wrapper className="thin-scrollbar">
             <LeftSidebar fileName={pageTitle} fileTree={fileTree} />
             <MainContentWrapper>
-              <StyledTitleInput
-                id="documentName"
-                value={pageTitle}
-                onChange={handleTitleChange}
-                placeholder="enter page title..."
-              />
+              {!showInitialPrompt && (
+                <StyledTitleInput
+                  id="documentName"
+                  value={pageTitle}
+                  onChange={handleTitleChange}
+                  placeholder="Untitled"
+                />
+              )}
               <StyledDescriptionInput
                 id="documentDescription"
                 value={pageDescription}
                 onChange={handleDescriptionChange}
                 placeholder="enter page description..."
+                style={{ visibility: showInitialPrompt ? "hidden" : "visible" }}
               />
               <ScrollableContent
                 className="thin-scrollbar"
                 ref={scrollContainerRef}
               >
-                <TextEditor
-                  setCharCount={setCharCount}
-                  setWordCount={setWordCount}
-                  setLineCount={setLineCount}
-                  setTextValue={setTextValue}
-                  setSuggestion={setSuggestion}
-                  setFileTree={setFileTree}
-                  setAutocompleteState={(state: unknown) =>
-                    setAutocompleteState(state as LLMAutocompleteState | null)
-                  }
-                  fileTree={fileTree}
-                  suggestion={suggestion || undefined}
-                  textValue={textValue}
-                />
+                {isProcessingInitialMessage ? (
+                  <ShimmerMessageContainer>
+                    <ShimmerMessage text="Writing your document..." />
+                  </ShimmerMessageContainer>
+                ) : (
+                  <TextEditor
+                    ref={quillRef}
+                    setCharCount={setCharCount}
+                    setWordCount={setWordCount}
+                    setLineCount={setLineCount}
+                    setTextValue={setTextValue}
+                    setSuggestion={setSuggestion}
+                    setFileTree={setFileTree}
+                    setAutocompleteState={(state: unknown) =>
+                      setAutocompleteState(state as LLMAutocompleteState | null)
+                    }
+                    fileTree={fileTree}
+                    suggestion={suggestion || undefined}
+                    textValue={textValue}
+                  />
+                )}
               </ScrollableContent>
-              <BottomSidebar
-                charCount={charCount}
-                wordCount={wordCount}
-                lineCount={lineCount}
-                isScrolling={isScrolling}
-                scrollPercent={scrollPercent}
-                saveStatus={saveStatus}
-                autocompleteState={autocompleteState || undefined}
-              />
+              {!showInitialPrompt && (
+                <BottomSidebar
+                  charCount={charCount}
+                  wordCount={wordCount}
+                  lineCount={lineCount}
+                  isScrolling={isScrolling}
+                  scrollPercent={scrollPercent}
+                  saveStatus={saveStatus}
+                  autocompleteState={autocompleteState || undefined}
+                />
+              )}
+              {showInitialPrompt && (
+                <PromptOverlay>
+                  <InitialPrompt
+                    onSubmit={handleInitialPromptSubmit}
+                    isLoading={isCreatingConversation || isSendingMessage}
+                  />
+                </PromptOverlay>
+              )}
             </MainContentWrapper>
             <RightSidebar />
             {isFeedbackFormModalOpen && (
@@ -394,6 +513,7 @@ const MainContentWrapper = styled.div`
   width: 69%;
   margin-top: 3%;
   height: 100%;
+  position: relative;
 `;
 
 const ScrollableContent = styled.div`
@@ -427,4 +547,30 @@ const StyledDescriptionInput = styled.input`
   font-size: 17px;
   margin-bottom: 16px;
   font-family: NM-Medium;
+`;
+
+const ShimmerMessageContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 40px;
+`;
+
+const PromptOverlay = styled.div`
+  position: absolute;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10%;
+  pointer-events: none;
+  z-index: 10;
+
+  > * {
+    pointer-events: auto;
+  }
 `;

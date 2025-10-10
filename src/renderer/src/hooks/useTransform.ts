@@ -163,13 +163,11 @@ export function useTransform({
       (
         quill as { insertText: (index: number, text: string) => void }
       ).insertText(transformSelection.index, transformedText);
-
     },
     [quillRef, transformSelection],
   );
 
-  const handleTransformReject = useCallback(() => {
-  }, []);
+  const handleTransformReject = useCallback(() => {}, []);
 
   const handleTransformModalClose = useCallback(() => {
     setIsTransformModalOpen(false);
