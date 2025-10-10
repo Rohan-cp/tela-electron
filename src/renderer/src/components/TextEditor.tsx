@@ -211,6 +211,7 @@ export default function TextEditor({
         isOpen={isChatAssistantOpen}
         onClose={closeChatAssistant}
         selectedText={selectedText}
+        quillRef={quillRef}
       />
 
       <TransformModal

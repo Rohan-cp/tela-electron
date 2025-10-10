@@ -1,5 +1,6 @@
-.suggestion-container {
-    gap: 10px;
+.suggestion-title {
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
 }
 
 .apply-change-btn {
@@ -14,6 +15,7 @@
     padding-right: 16px;
     padding-left: 16px;
     font-family: NM-Medium;
+    letter-spacing: -0.01em;
 }
 
 .apply-change-btn:hover {
@@ -29,6 +31,7 @@
     padding-right: 14px;
     padding-left: 14px;
     gap: 12px;
+    border-radius: 6px;
 }
 
 .suggest-remove-text-container,
@@ -40,14 +43,14 @@
 
 .suggest-remove-text,
 .suggest-add-text {
-    font-size: 14px;
+    font-size: 13px;
     padding: 4px;
     overflow: hidden;
     padding-left: 10px;
     padding-right: 10px;
+    letter-spacing: -0.01em;
 }
 
-/* Indicator borders */
 .remove-red-left-border,
 .add-green-left-border {
     height: 30px;
@@ -60,4 +63,35 @@
 
 .add-green-left-border {
     background-color: var(--add-indicator);
+}
+
+.shimmer-message {
+    position: relative;
+    overflow: hidden;
+}
+
+.shimmer-text {
+    color: var(--tela-chat-assistant-text);
+    font-family: SfProMedium;
+    letter-spacing: -0.01em;
+    animation: shimmer-wave 2s ease-in-out infinite;
+    background: linear-gradient(
+        90deg,
+        var(--tela-chat-assistant-text) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        var(--tela-chat-assistant-text) 100%
+    );
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@keyframes shimmer-wave {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
 }

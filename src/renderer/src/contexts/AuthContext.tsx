@@ -57,7 +57,6 @@ const AuthProvider = memo(({ children }: Props) => {
   });
   const [userMode, setUserMode] = useState<UserMode>(UserMode.editor);
 
-
   // Memoized wrapper functions that also update localStorage
   const setAuthenticated = useCallback((value: boolean) => {
     setIsUserAuthenticated(value);
