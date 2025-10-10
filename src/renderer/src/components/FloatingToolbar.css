@@ -227,11 +227,12 @@ input::placeholder {
 
 .suggest-remove-text,
 .suggest-add-text {
-  font-size: 14px;
+  font-size: 13px;
   padding: var(--tela-padding-standard);
   overflow: hidden;
   padding-left: 10px;
   padding-right: 10px;
+  letter-spacing: -0.01em;
 }
 
 .suggest-add-text {

@@ -1,4 +1,3 @@
-// API client configuration and utilities
 const API_BASE_URL = "http://localhost:3001";
 
 export interface ApiError {
@@ -91,20 +90,58 @@ export class ApiClient {
   async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "DELETE" });
   }
+
+  async createConversation(
+    data: CreateConversationRequest,
+  ): Promise<Conversation> {
+    return this.post<Conversation>(`${API_ENDPOINTS.CHAT}/conversations`, data);
+  }
+
+  async getConversations(): Promise<Conversation[]> {
+    return this.get<Conversation[]>(`${API_ENDPOINTS.CHAT}/conversations`);
+  }
+
+  async getConversation(conversationId: string): Promise<Conversation> {
+    return this.get<Conversation>(
+      `${API_ENDPOINTS.CHAT}/conversations/${conversationId}`,
+    );
+  }
+
+  async sendMessage(
+    conversationId: string,
+    data: SendMessageRequest,
+  ): Promise<SendMessageResponse> {
+    return this.post<SendMessageResponse>(
+      `${API_ENDPOINTS.CHAT}/conversations/${conversationId}/messages`,
+      data,
+    );
+  }
+
+  async applyChange(changeId: string): Promise<SuggestedChange> {
+    return this.post<SuggestedChange>(
+      `${API_ENDPOINTS.CHAT}/changes/${changeId}/apply`,
+    );
+  }
+
+  async deleteConversation(
+    conversationId: string,
+  ): Promise<{ success: boolean }> {
+    return this.delete<{ success: boolean }>(
+      `${API_ENDPOINTS.CHAT}/conversations/${conversationId}`,
+    );
+  }
 }
 
-// Create a singleton instance
 export const apiClient = new ApiClient();
 
-// API endpoints
 export const API_ENDPOINTS = {
   AUTOCOMPLETE: "/api/autocomplete",
   TRANSFORM: "/api/transform",
   AUTH: "/auth",
   FEEDBACK: "/api/feedback",
+  CHAT: "/api/chat",
 } as const;
 
-// Type definitions for API responses
 export interface AutocompleteRequest {
   context: string;
   currentSentence: string;
@@ -142,4 +179,50 @@ export interface FeedbackResponse {
     createdAt: string;
   };
   error?: string;
+}
+
+export interface Conversation {
+  id: string;
+  title?: string;
+  documentId?: string;
+  createdAt: string;
+  updatedAt: string;
+  messages?: Message[];
+  _count?: {
+    messages: number;
+  };
+}
+
+export interface Message {
+  id: string;
+  conversationId: string;
+  source: "USER" | "ASSISTANT";
+  content: string;
+  suggestedChanges?: SuggestedChange[];
+  createdAt: string;
+}
+
+export interface SuggestedChange {
+  id: string;
+  messageId: string;
+  title: string;
+  currentText: string;
+  suggestedText: string;
+  isApplied: boolean;
+  createdAt: string;
+}
+
+export interface CreateConversationRequest {
+  title?: string;
+  documentId?: string;
+}
+
+export interface SendMessageRequest {
+  content: string;
+  documentContent?: string;
+}
+
+export interface SendMessageResponse {
+  message: Message;
+  suggestedChanges: SuggestedChange[];
 }
