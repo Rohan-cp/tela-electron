@@ -1,11 +1,8 @@
 import styled from "styled-components";
 import { useEffect, useCallback } from "react";
 import { useAuthContext } from "@renderer/contexts/AuthContext";
-// @ts-ignore - Asset import type declarations not properly configured
 import telaIconRound from "../assets/telaIconRound.svg";
-// @ts-ignore - Asset import type declarations not properly configured
 import googleIcon from "../assets/google-icon.svg";
-// @ts-ignore - Asset import type declarations not properly configured
 import authBackground from "../assets/auth-bg.png";
 
 export default function AuthPage(): JSX.Element {
@@ -25,16 +22,17 @@ export default function AuthPage(): JSX.Element {
   }, []);
 
   const handleAuthSuccess = useCallback(
-    (_event: unknown, userData: { email: string; token?: string }) => {
-      if (userData && userData.email) {
-        setUserEmail(userData.email);
-        setUserToken(userData.token || null);
-        setIsUserAuthenticated(true);
+    (
+      _event: Electron.IpcRendererEvent,
+      data: { email: string; token?: string },
+    ) => {
+      setUserEmail(data.email);
+      setUserToken(data.token || null);
+      setIsUserAuthenticated(true);
 
-        setTimeout(() => {
-          window.location.href = "/editor";
-        }, 500);
-      }
+      setTimeout(() => {
+        window.location.href = "/editor";
+      }, 500);
     },
     [setUserEmail, setUserToken, setIsUserAuthenticated],
   );
@@ -59,13 +57,16 @@ export default function AuthPage(): JSX.Element {
   );
 
   useEffect(() => {
-    if (authenticated && user) {
-      const email = (user as { email?: string })?.email ?? "rohancp9@02.com";
-      if (email) {
-        setUserEmail(email);
-        setIsUserAuthenticated(true);
-        window.location.href = "/";
-      }
+    if (
+      authenticated &&
+      user &&
+      typeof user === "object" &&
+      "email" in user &&
+      typeof user.email === "string"
+    ) {
+      setUserEmail(user.email);
+      setIsUserAuthenticated(true);
+      window.location.href = "/";
     }
   }, [authenticated, user, setUserEmail, setIsUserAuthenticated]);
 

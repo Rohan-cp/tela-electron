@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
-export function countWords(str: string) {
+export function countWords(str: string): number {
   str = str.trim();
 
   // If the string is empty after trimming, return 0
@@ -13,7 +11,7 @@ export function countWords(str: string) {
   return words.length;
 }
 
-export function countLineBreaks(str: string) {
+export function countLineBreaks(str: string): number {
   // Use a regular expression to match all occurrences of line breaks
   const lineBreaks = str.match(/\n/g);
 
@@ -22,7 +20,7 @@ export function countLineBreaks(str: string) {
   return lineBreaks ? lineBreaks.length : 0;
 }
 
-export function trimSubstring(mainString: string, subString: string) {
+export function trimSubstring(mainString: string, subString: string): string {
   return mainString?.replace(subString, "");
 }
 
@@ -188,6 +186,10 @@ export function createFileTree(headerLines: Header[] | null): Subtree[] {
   return fileTree;
 }
 
-export function getSubstring(str, index, length) {
+export function getSubstring(
+  str: string,
+  index: number,
+  length: number,
+): string {
   return str.slice(index, index + length);
 }

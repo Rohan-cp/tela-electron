@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
 
@@ -8,7 +6,11 @@ type Props = PropsWithChildren<{
   active?: boolean;
 }>;
 
-export default function Button({ children, onClick, active = true }: Props) {
+export default function Button({
+  children,
+  onClick,
+  active = true,
+}: Props): JSX.Element {
   return (
     <StyledButton onClick={onClick} active={active}>
       {children}

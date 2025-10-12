@@ -2,16 +2,17 @@ import React, { useCallback, useMemo } from "react";
 import { MessageStyle } from "@renderer/types/types";
 import { Message, SuggestedChange } from "../lib/api";
 import { useChat } from "../hooks/useChat";
+import { QuillEditor } from "../hooks/editorTypes";
 import "./MessageRowItem.css";
 
 type MessageRowItemProps = {
   message: Message;
-  quillRef: React.RefObject<{ getEditor: () => unknown }>;
+  quillRef: React.RefObject<{ getEditor: () => QuillEditor | null }>;
 };
 
 type SuggestedChangeItemProps = {
   change: SuggestedChange;
-  quillRef: React.RefObject<{ getEditor: () => unknown }>;
+  quillRef: React.RefObject<{ getEditor: () => QuillEditor | null }>;
 };
 
 const SuggestedChangeItem = React.memo(function SuggestedChangeItem({
@@ -25,26 +26,16 @@ const SuggestedChangeItem = React.memo(function SuggestedChangeItem({
       if (quillRef.current) {
         const quill = quillRef.current.getEditor();
 
-        if (
-          quill &&
-          typeof quill === "object" &&
-          "getText" in quill &&
-          "deleteText" in quill &&
-          "insertText" in quill
-        ) {
-          const editorText = (quill as { getText: () => string }).getText();
+        if (quill) {
+          const editorText = quill.getText();
           const currentText = change.currentText;
           const suggestedText = change.suggestedText;
 
           const textIndex = editorText.indexOf(currentText);
 
           if (textIndex !== -1) {
-            (
-              quill as { deleteText: (index: number, length: number) => void }
-            ).deleteText(textIndex, currentText.length);
-            (
-              quill as { insertText: (index: number, text: string) => void }
-            ).insertText(textIndex, suggestedText);
+            quill.deleteText(textIndex, currentText.length);
+            quill.insertText(textIndex, suggestedText);
           }
         }
       }

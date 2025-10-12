@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { secondary, tertiary } from "@renderer/colors";
-import { Header, Selection, Subtree } from "@renderer/utils/textOps";
+import { Selection, Subtree } from "@renderer/utils/textOps";
 import { useEditorContext } from "@renderer/contexts/EditorContext";
 import { useCallback } from "react";
 
@@ -22,7 +22,8 @@ export default function LeftSidebar({
         index: subtree.selection.index,
         length: subtree.selection.length,
         text: subtree.value,
-      } as Header);
+        type: "",
+      });
     },
     [setScrollToHeader],
   );

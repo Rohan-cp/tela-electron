@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { API_ENDPOINTS, FeedbackRequest } from "../../lib/api";
@@ -10,7 +8,7 @@ type Props = {
   onClose: () => void;
 };
 
-export default function FeedbackFormModal({ onClose }: Props) {
+export default function FeedbackFormModal({ onClose }: Props): JSX.Element {
   const [clusterTitle, setClusterTitle] = useState("");
   const [clusterDescription, setClusterDescription] = useState("");
   const [isSubmitReady, setIsSubmitReady] = useState<boolean>(false);
@@ -25,13 +23,13 @@ export default function FeedbackFormModal({ onClose }: Props) {
     }
   }, [clusterTitle, clusterDescription]);
 
-  const handleBgClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleBgClick = (e: React.MouseEvent<HTMLDivElement>): void => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  const handleSubmitFeedback = async () => {
+  const handleSubmitFeedback = async (): Promise<void> => {
     if (!userToken) {
       setSubmitMessage("Please log in to submit feedback");
       return;

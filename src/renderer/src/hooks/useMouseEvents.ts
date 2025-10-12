@@ -34,26 +34,28 @@ export function useMouseEvents({
       const descriptionInput = document.getElementById("documentDescription");
       const modalElements = document.querySelectorAll("[data-modal]");
 
+      const eventTarget = e.target instanceof Node ? e.target : null;
+      if (!eventTarget) return;
+
       let clickedInsideToolbar = false;
       toolbarElements.forEach((toolbar) => {
-        if (toolbar.contains(e.target as Node)) {
+        if (toolbar.contains(eventTarget)) {
           clickedInsideToolbar = true;
         }
       });
 
       let clickedInsideModal = false;
       modalElements.forEach((modal) => {
-        if (modal.contains(e.target as Node)) {
+        if (modal.contains(eventTarget)) {
           clickedInsideModal = true;
         }
       });
 
-      const clickedInsideChat = chatAssistant?.contains(e.target as Node);
-      const clickedInsideEditor = editorElement?.contains(e.target as Node);
-      const clickedInsideTitleInput = titleInput?.contains(e.target as Node);
-      const clickedInsideDescriptionInput = descriptionInput?.contains(
-        e.target as Node,
-      );
+      const clickedInsideChat = chatAssistant?.contains(eventTarget);
+      const clickedInsideEditor = editorElement?.contains(eventTarget);
+      const clickedInsideTitleInput = titleInput?.contains(eventTarget);
+      const clickedInsideDescriptionInput =
+        descriptionInput?.contains(eventTarget);
 
       if (
         !clickedInsideToolbar &&
