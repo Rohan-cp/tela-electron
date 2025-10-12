@@ -9,19 +9,10 @@ import {
   Selection,
 } from "@renderer/utils/textOps";
 import { ToolbarPosition } from "@renderer/components/FloatingToolbar";
+import { QuillEditorRef } from "./editorTypes";
 
 export interface UseSelectionHandlingProps {
-  quillRef: React.RefObject<{
-    getEditor: () => {
-      getSelection: () => { index: number; length: number } | null;
-      getText: () => string;
-      getHTML: () => string;
-      getBounds: (
-        index: number,
-        length: number,
-      ) => { bottom: number; left: number } | null;
-    };
-  }>;
+  quillRef: React.RefObject<QuillEditorRef>;
   setSelectedStats: (
     stats: { charCount: number; wordCount: number; lineCount: number } | null,
   ) => void;

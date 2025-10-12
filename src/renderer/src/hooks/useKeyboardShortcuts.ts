@@ -1,16 +1,8 @@
 import { useEffect, useCallback } from "react";
+import { QuillEditorRef } from "./editorTypes";
 
 export interface UseKeyboardShortcutsProps {
-  quillRef: React.RefObject<{
-    getEditor: () => {
-      getSelection: () => { index: number; length: number } | null;
-      getText: (index: number, length: number) => string;
-      getBounds: (
-        index: number,
-        length: number,
-      ) => { bottom: number; left: number } | null;
-    };
-  }>;
+  quillRef: React.RefObject<QuillEditorRef>;
   formatHeader: (level: number) => void;
   setTransformSelection: (
     selection: { index: number; length: number } | null,

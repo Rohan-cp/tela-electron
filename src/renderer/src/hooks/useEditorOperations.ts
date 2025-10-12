@@ -1,5 +1,4 @@
 import { useCallback, useRef } from "react";
-import ReactQuill from "react-quill";
 import {
   countLineBreaks,
   countWords,
@@ -8,6 +7,7 @@ import {
   extractHeaders,
   Subtree,
 } from "@renderer/utils/textOps";
+import { QuillEditorRef } from "./editorTypes";
 
 export interface EditorStats {
   charCount: number;
@@ -28,12 +28,12 @@ export function useEditorOperations({
   setLineCount,
   setFileTree,
 }: UseEditorOperationsProps): {
-  quillRef: React.RefObject<ReactQuill>;
+  quillRef: React.RefObject<QuillEditorRef>;
   updateFileStats: () => void;
   getEditorStats: (editor: { getText: () => string }) => EditorStats;
   formatHeader: (level: number) => void;
 } {
-  const quillRef = useRef<ReactQuill>(null);
+  const quillRef = useRef<QuillEditorRef>(null);
 
   const updateFileStats = useCallback(() => {
     if (!quillRef?.current) return;
