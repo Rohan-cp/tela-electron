@@ -63,7 +63,6 @@ export default function Editor(): JSX.Element {
   const quillRef = useRef<{ getEditor: () => unknown } | null>(null);
 
   const createNewFile = useCallback(() => {
-    // Clear the Quill editor's content first
     if (quillRef.current) {
       const quill = quillRef.current.getEditor();
       if (
@@ -91,26 +90,20 @@ export default function Editor(): JSX.Element {
   const handleInitialPromptSubmit = useCallback(
     async (message: string) => {
       try {
-        // Hide the prompt and show processing state
         setShowInitialPrompt(false);
         setIsProcessingInitialMessage(true);
 
-        // Create a new conversation
         const conversation = await startNewConversation(
           "New Document",
           undefined,
         );
 
-        // Send the first message with empty document content since we're starting from scratch
         const response = await sendMessage(message, "", conversation.id);
 
-        // Extract the response text from the assistant's message
         const assistantMessage = response.message;
         if (assistantMessage && assistantMessage.content) {
-          // Insert the HTML response into the document using Quill's clipboard API
           if (quillRef.current) {
             const quill = quillRef.current.getEditor();
-            // Type guard to check if quill has the necessary methods
             if (
               quill &&
               typeof quill === "object" &&
@@ -122,16 +115,12 @@ export default function Editor(): JSX.Element {
               "setText" in quill &&
               typeof quill.setText === "function"
             ) {
-              // Clear existing content first
               quill.setText("");
-              // Insert HTML content at the beginning
               quill.clipboard.dangerouslyPasteHTML(0, assistantMessage.content);
             } else {
-              // Fallback to plain text if clipboard API is not available
               setTextValue(assistantMessage.content);
             }
           } else {
-            // Fallback if quillRef is not ready
             setTextValue(assistantMessage.content);
           }
         }
@@ -140,7 +129,7 @@ export default function Editor(): JSX.Element {
       } catch (error) {
         console.error("Error processing initial message:", error);
         setIsProcessingInitialMessage(false);
-        setShowInitialPrompt(true); // Show the prompt again on error
+        setShowInitialPrompt(true);
       }
     },
     [startNewConversation, sendMessage],
@@ -150,8 +139,6 @@ export default function Editor(): JSX.Element {
     window.electron.webFrame.setZoomFactor(1);
   }, []);
 
-  // Hide initial prompt if there's content or if file is opened
-  // Show initial prompt if there's no content and no file is opened (unless processing)
   useEffect(() => {
     if (textValue.trim() !== "" || currentFilePath !== null) {
       setShowInitialPrompt(false);
@@ -195,7 +182,6 @@ export default function Editor(): JSX.Element {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       setPageTitle(value);
-      // Hide initial prompt when user starts typing
       if (value.trim() !== "" && showInitialPrompt) {
         setShowInitialPrompt(false);
       }
@@ -327,7 +313,6 @@ export default function Editor(): JSX.Element {
     };
   }, [textValue, currentFilePath, handleFileCreated]);
 
-  // use effect to handle opening document on CMD+o
   useEffect(() => {
     const handleOpen = (event: KeyboardEvent): void => {
       if ((event.metaKey || event.ctrlKey) && event.key === "o") {

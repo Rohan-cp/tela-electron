@@ -65,7 +65,6 @@ export function useMouseEvents({
         !clickedInsideDescriptionInput &&
         !clickedInsideModal
       ) {
-        // Clicked outside toolbar, chat, editor, and input fields
         if (window.getSelection) {
           const selection = window.getSelection();
           if (selection) {
@@ -79,7 +78,6 @@ export function useMouseEvents({
         setShowDiffView(false);
         setShowLoader?.(false);
       } else if (!clickedInsideToolbar && clickedInsideEditor) {
-        // Inside editor but not toolbar — check selection after delay
         setTimeout(() => {
           const selection = window.getSelection();
           if (!selection || selection.toString().trim() === "") {

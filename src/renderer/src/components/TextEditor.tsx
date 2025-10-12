@@ -173,14 +173,12 @@ const TextEditor = forwardRef<{ getEditor: () => unknown }, Props>(
       scrollToHeaderHandler();
     }, [scrollToHeaderHandler]);
 
-    // Cleanup autocomplete on unmount
     useEffect(() => {
       return () => {
         cleanup();
       };
     }, [cleanup]);
 
-    // Update parent with autocomplete state
     useEffect(() => {
       setAutocompleteState(autocompleteState);
     }, [autocompleteState, setAutocompleteState]);
