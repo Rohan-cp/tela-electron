@@ -1,7 +1,8 @@
 import { useEffect, useCallback } from "react";
+import { QuillEditorRef } from "./editorTypes";
 
 export interface UseMouseEventsProps {
-  quillRef: React.RefObject<unknown>;
+  quillRef: React.RefObject<QuillEditorRef>;
   setShowToolbar: (show: boolean) => void;
   setIsTransformSelected: (selected: boolean) => void;
   setShowDiffView: (show: boolean) => void;
@@ -9,7 +10,10 @@ export interface UseMouseEventsProps {
   setSelectedStats: (
     stats: { charCount: number; wordCount: number; lineCount: number } | null,
   ) => void;
-  handleUpdatingSelectedStats: (range: unknown, editor: unknown) => void;
+  handleUpdatingSelectedStats: (
+    range: { index: number; length: number },
+    editor: { getText: () => string },
+  ) => void;
 }
 
 export function useMouseEvents({
@@ -83,22 +87,10 @@ export function useMouseEvents({
             setShowLoader?.(false);
             setSelectedStats(null);
           } else {
-            if (
-              quillRef.current &&
-              typeof quillRef.current === "object" &&
-              "getEditor" in quillRef.current
-            ) {
-              const quill = (
-                quillRef.current as { getEditor: () => unknown }
-              ).getEditor();
-              if (
-                quill &&
-                typeof quill === "object" &&
-                "getSelection" in quill
-              ) {
-                const range = (
-                  quill as { getSelection: () => { length: number } | null }
-                ).getSelection();
+            if (quillRef.current) {
+              const quill = quillRef.current.getEditor();
+              if (quill) {
+                const range = quill.getSelection();
                 if (range && range.length > 0) {
                   handleUpdatingSelectedStats(range, quill);
                 }

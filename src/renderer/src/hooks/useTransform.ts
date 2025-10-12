@@ -2,9 +2,10 @@ import { useState, useCallback } from "react";
 import { Suggestion } from "@renderer/components/TextEditor";
 import { apiClient } from "@renderer/lib/api";
 import { useAuthContext } from "@renderer/contexts/AuthContext";
+import { QuillEditorRef } from "./editorTypes";
 
 export interface UseTransformProps {
-  quillRef: React.RefObject<unknown>;
+  quillRef: React.RefObject<QuillEditorRef>;
   transformSelection: { index: number; length: number } | null;
   setSuggestion: (suggestion: Suggestion | null) => void;
   setShowToolbar: (show: boolean) => void;
@@ -46,19 +47,18 @@ export function useTransform({
     async (userTransformPrompt: string, isRetry: boolean = false) => {
       if (!quillRef.current) return;
 
-      const quill = (
-        quillRef.current as { getEditor: () => unknown }
-      ).getEditor();
+      const quill = quillRef.current.getEditor();
 
       if (!transformSelection || transformSelection.length === 0) return;
 
-      if (!quill || typeof quill !== "object" || !("getText" in quill)) {
+      if (!quill) {
         throw new Error("Quill editor not available");
       }
 
-      const originalText = (
-        quill as { getText: (index: number, length: number) => string }
-      ).getText(transformSelection.index, transformSelection.length);
+      const originalText = quill.getText(
+        transformSelection.index,
+        transformSelection.length,
+      );
 
       setTransformError(null);
       setShowLoader(true);
@@ -144,25 +144,14 @@ export function useTransform({
     (transformedText: string) => {
       if (!quillRef.current || !transformSelection) return;
 
-      const quill = (
-        quillRef.current as { getEditor: () => unknown }
-      ).getEditor();
+      const quill = quillRef.current.getEditor();
 
-      if (
-        !quill ||
-        typeof quill !== "object" ||
-        !("deleteText" in quill) ||
-        !("insertText" in quill)
-      ) {
+      if (!quill) {
         return;
       }
 
-      (
-        quill as { deleteText: (index: number, length: number) => void }
-      ).deleteText(transformSelection.index, transformSelection.length);
-      (
-        quill as { insertText: (index: number, text: string) => void }
-      ).insertText(transformSelection.index, transformedText);
+      quill.deleteText(transformSelection.index, transformSelection.length);
+      quill.insertText(transformSelection.index, transformedText);
     },
     [quillRef, transformSelection],
   );

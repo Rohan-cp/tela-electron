@@ -9,9 +9,16 @@ export interface QuillEditorProps {
     content: string,
     delta: unknown,
     source: unknown,
-    editor: unknown,
+    editor: {
+      getText: () => string;
+      getSelection?: () => { index: number; length: number } | null;
+    },
   ) => void;
-  onChangeSelection: (range: unknown, source: unknown, editor: unknown) => void;
+  onChangeSelection: (
+    range: { index: number; length: number } | null,
+    source: unknown,
+    editor: { getText: () => string; getHTML: () => string },
+  ) => void;
 }
 
 const modules = {

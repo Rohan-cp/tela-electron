@@ -16,3 +16,4 @@ export type { UseSelectionHandlingProps } from "./useSelectionHandling";
 export type { UseTransformProps } from "./useTransform";
 export type { UseKeyboardShortcutsProps } from "./useKeyboardShortcuts";
 export type { UseMouseEventsProps } from "./useMouseEvents";
+export type { QuillEditorRef, QuillEditor } from "./editorTypes";

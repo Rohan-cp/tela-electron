@@ -1,36 +1,19 @@
 import { useCallback, useEffect } from "react";
 import { EditorStats } from "@renderer/hooks";
-
-interface QuillInstance {
-  getEditor(): {
-    getSelection(): { index: number; length?: number } | null;
-    deleteText(index: number, length: number): void;
-    insertText(
-      index: number,
-      text: string,
-      format?: Record<string, unknown>,
-    ): void;
-    setSelection(index: number, length: number): void;
-    formatText(
-      index: number,
-      length: number,
-      format: Record<string, unknown>,
-    ): void;
-    getText(index?: number, length?: number): string;
-    getLength(): number;
-    root: HTMLElement;
-  };
-}
+import { QuillEditorRef } from "@renderer/hooks/editorTypes";
 
 export interface ContentHandlerProps {
   setTextValue: (content: string) => void;
   updateFileStats: () => void;
-  handleUpdatingSelectedStats: (range: unknown, editor: unknown) => void;
-  getEditorStats: (editor: unknown) => EditorStats;
+  handleUpdatingSelectedStats: (
+    range: { index: number; length: number },
+    editor: { getText: () => string },
+  ) => void;
+  getEditorStats: (editor: { getText: () => string }) => EditorStats;
   setCharCount: (count: number) => void;
   setWordCount: (count: number) => void;
   setLineCount: (count: number) => void;
-  quillRef: React.RefObject<QuillInstance>;
+  quillRef: React.RefObject<QuillEditorRef>;
   handleTabPress: () => void;
   handleEscapePress: () => void;
 }
@@ -51,11 +34,22 @@ export function useContentHandler({
     content: string,
     delta: unknown,
     source: unknown,
-    editor: unknown,
+    editor: {
+      getText: () => string;
+      getSelection?: () => { index: number; length: number } | null;
+    },
   ) => void;
 } {
   const handleChange = useCallback(
-    (content: string, _delta: unknown, _source: unknown, editor: unknown) => {
+    (
+      content: string,
+      _delta: unknown,
+      _source: unknown,
+      editor: {
+        getText: () => string;
+        getSelection?: () => { index: number; length: number } | null;
+      },
+    ) => {
       const newContent = content;
 
       setTextValue(newContent);
@@ -70,15 +64,8 @@ export function useContentHandler({
       updateFileStats();
 
       // If there's a selection, update the selected stats
-      if (
-        editor &&
-        typeof editor === "object" &&
-        editor !== null &&
-        "getSelection" in editor
-      ) {
-        const selection = (
-          editor as { getSelection: () => { length: number } | null }
-        ).getSelection();
+      if (editor.getSelection) {
+        const selection = editor.getSelection();
         if (selection && selection.length > 0) {
           handleUpdatingSelectedStats(selection, editor);
         }

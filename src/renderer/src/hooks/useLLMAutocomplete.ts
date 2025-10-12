@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { useAutocomplete } from "./useAPI";
+import { QuillEditorRef } from "./editorTypes";
 
 export interface LLMAutocompleteState {
   isActive: boolean;
@@ -9,25 +10,7 @@ export interface LLMAutocompleteState {
 }
 
 export interface UseLLMAutocompleteProps {
-  quillRef: React.RefObject<{
-    getEditor: () => {
-      getSelection: () => { index: number; length: number } | null;
-      getText: (start: number, end: number) => string;
-      insertText: (
-        index: number,
-        text: string,
-        format?: Record<string, unknown>,
-      ) => void;
-      setSelection: (index: number, length: number) => void;
-      formatText: (
-        index: number,
-        length: number,
-        format: Record<string, unknown>,
-      ) => void;
-      deleteText: (index: number, length: number) => void;
-      root: { innerHTML: string };
-    };
-  }>;
+  quillRef: React.RefObject<QuillEditorRef>;
 }
 
 export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
