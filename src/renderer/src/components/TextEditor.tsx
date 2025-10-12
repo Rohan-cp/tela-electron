@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import { Subtree } from "@renderer/utils/textOps";
 import { useEditorContext } from "@renderer/contexts/EditorContext";
 import FloatingToolbar from "./FloatingToolbar";
@@ -32,201 +32,215 @@ type Props = {
   suggestion?: Suggestion;
 };
 
-export default function TextEditor({
-  setCharCount,
-  setWordCount,
-  setLineCount,
-  setTextValue,
-  setSuggestion,
-  setFileTree,
-  setAutocompleteState,
-  textValue,
-  fileTree: _fileTree, // eslint-disable-line @typescript-eslint/no-unused-vars
-  suggestion: _suggestion, // eslint-disable-line @typescript-eslint/no-unused-vars
-}: Props): JSX.Element {
-  const [showDiffView, setShowDiffView] = useState(false);
-  const [isTransformSelected, setIsTransformSelected] = useState(false);
-  const [, setIsInteractingWithToolbar] = useState(false);
-
-  const { quillRef, updateFileStats, getEditorStats, formatHeader } =
-    useEditorOperations({
+const TextEditor = forwardRef<{ getEditor: () => unknown }, Props>(
+  function TextEditor(
+    {
       setCharCount,
       setWordCount,
       setLineCount,
+      setTextValue,
+      setSuggestion,
       setFileTree,
+      setAutocompleteState,
+      textValue,
+      fileTree: _fileTree, // eslint-disable-line @typescript-eslint/no-unused-vars
+      suggestion: _suggestion, // eslint-disable-line @typescript-eslint/no-unused-vars
+    },
+    ref,
+  ) {
+    const [showDiffView, setShowDiffView] = useState(false);
+    const [isTransformSelected, setIsTransformSelected] = useState(false);
+    const [, setIsInteractingWithToolbar] = useState(false);
+
+    const { quillRef, updateFileStats, getEditorStats, formatHeader } =
+      useEditorOperations({
+        setCharCount,
+        setWordCount,
+        setLineCount,
+        setFileTree,
+      });
+
+    // Expose getEditor method to parent component
+    useImperativeHandle(ref, () => ({
+      getEditor: () => quillRef.current?.getEditor(),
+    }));
+
+    const { setSelectedStats } = useEditorContext();
+
+    const {
+      showToolbar,
+      setShowToolbar,
+      toolbarPosition,
+      setToolbarPosition,
+      transformSelection,
+      setTransformSelection,
+      handleSelectionChange,
+      handleUpdatingSelectedStats,
+      scrollToHeaderHandler,
+    } = useSelectionHandling({
+      quillRef,
+      setSelectedStats,
     });
 
-  const { setSelectedStats } = useEditorContext();
+    const {
+      showLoader,
+      originalText,
+      suggestedText,
+      transformError,
+      retryCount,
+      isTransformModalOpen,
+      modalOriginalText,
+      modalTransformedText,
+      handleSubmitPromptToTransform,
+      handleTransformAccept,
+      handleTransformReject,
+      handleTransformModalClose,
+    } = useTransform({
+      quillRef,
+      transformSelection,
+      setSuggestion,
+      setShowToolbar,
+    });
 
-  const {
-    showToolbar,
-    setShowToolbar,
-    toolbarPosition,
-    setToolbarPosition,
-    transformSelection,
-    setTransformSelection,
-    handleSelectionChange,
-    handleUpdatingSelectedStats,
-    scrollToHeaderHandler,
-  } = useSelectionHandling({
-    quillRef,
-    setSelectedStats,
-  });
+    const {
+      state: autocompleteState,
+      handleTabPress,
+      handleEscapePress,
+      cleanup,
+    } = useLLMAutocomplete({
+      quillRef,
+    });
 
-  const {
-    showLoader,
-    originalText,
-    suggestedText,
-    transformError,
-    retryCount,
-    isTransformModalOpen,
-    modalOriginalText,
-    modalTransformedText,
-    handleSubmitPromptToTransform,
-    handleTransformAccept,
-    handleTransformReject,
-    handleTransformModalClose,
-  } = useTransform({
-    quillRef,
-    transformSelection,
-    setSuggestion,
-    setShowToolbar,
-  });
+    const {
+      isChatAssistantOpen,
+      selectedText,
+      closeChatAssistant,
+      openChatAssistant,
+    } = useChatAssistant();
 
-  const {
-    state: autocompleteState,
-    handleTabPress,
-    handleEscapePress,
-    cleanup,
-  } = useLLMAutocomplete({
-    quillRef,
-  });
-
-  const {
-    isChatAssistantOpen,
-    selectedText,
-    closeChatAssistant,
-    openChatAssistant,
-  } = useChatAssistant();
-
-  // Set up keyboard shortcuts
-  useKeyboardShortcuts({
-    quillRef,
-    formatHeader,
-    setTransformSelection,
-    setToolbarPosition,
-    setShowToolbar,
-    setIsTransformSelected,
-    setSelectedText: () => {
-      // This will be handled by the chat assistant hook
-    },
-    setIsChatAssistantOpen: (open: boolean | ((prev: boolean) => boolean)) => {
-      if (open) {
-        // Get selected text from Quill editor
-        const quill = quillRef.current?.getEditor();
-        if (quill) {
-          const selection = quill.getSelection();
-          if (selection && selection.length > 0) {
-            const text = quill.getText(selection.index, selection.length);
-            openChatAssistant(text);
+    // Set up keyboard shortcuts
+    useKeyboardShortcuts({
+      quillRef,
+      formatHeader,
+      setTransformSelection,
+      setToolbarPosition,
+      setShowToolbar,
+      setIsTransformSelected,
+      setSelectedText: () => {
+        // This will be handled by the chat assistant hook
+      },
+      setIsChatAssistantOpen: (
+        open: boolean | ((prev: boolean) => boolean),
+      ) => {
+        if (open) {
+          // Get selected text from Quill editor
+          const quill = quillRef.current?.getEditor();
+          if (quill) {
+            const selection = quill.getSelection();
+            if (selection && selection.length > 0) {
+              const text = quill.getText(selection.index, selection.length);
+              openChatAssistant(text);
+            } else {
+              openChatAssistant();
+            }
           } else {
             openChatAssistant();
           }
         } else {
-          openChatAssistant();
+          closeChatAssistant();
         }
-      } else {
-        closeChatAssistant();
-      }
-    },
-  });
+      },
+    });
 
-  useMouseEvents({
-    quillRef,
-    setShowToolbar,
-    setIsTransformSelected,
-    setShowDiffView,
-    setSelectedStats,
-    handleUpdatingSelectedStats,
-  });
+    useMouseEvents({
+      quillRef,
+      setShowToolbar,
+      setIsTransformSelected,
+      setShowDiffView,
+      setSelectedStats,
+      handleUpdatingSelectedStats,
+    });
 
-  const { handleChange } = useContentHandler({
-    setTextValue,
-    updateFileStats,
-    handleUpdatingSelectedStats,
-    getEditorStats,
-    setCharCount,
-    setWordCount,
-    setLineCount,
-    quillRef,
-    handleTabPress,
-    handleEscapePress,
-  });
+    const { handleChange } = useContentHandler({
+      setTextValue,
+      updateFileStats,
+      handleUpdatingSelectedStats,
+      getEditorStats,
+      setCharCount,
+      setWordCount,
+      setLineCount,
+      quillRef,
+      handleTabPress,
+      handleEscapePress,
+    });
 
-  useEffect(() => {
-    scrollToHeaderHandler();
-  }, [scrollToHeaderHandler]);
+    useEffect(() => {
+      scrollToHeaderHandler();
+    }, [scrollToHeaderHandler]);
 
-  // Cleanup autocomplete on unmount
-  useEffect(() => {
-    return () => {
-      cleanup();
+    // Cleanup autocomplete on unmount
+    useEffect(() => {
+      return () => {
+        cleanup();
+      };
+    }, [cleanup]);
+
+    // Update parent with autocomplete state
+    useEffect(() => {
+      setAutocompleteState(autocompleteState);
+    }, [autocompleteState, setAutocompleteState]);
+
+    const handleChangePromptInput = () => {
+      setIsTransformSelected(true);
+      setIsInteractingWithToolbar(true);
     };
-  }, [cleanup]);
 
-  // Update parent with autocomplete state
-  useEffect(() => {
-    setAutocompleteState(autocompleteState);
-  }, [autocompleteState, setAutocompleteState]);
+    return (
+      <EditorContainer>
+        <QuillEditor
+          quillRef={quillRef}
+          value={textValue}
+          onChange={handleChange}
+          onChangeSelection={handleSelectionChange}
+        />
+        <FloatingToolbar
+          showToolbar={showToolbar}
+          showDiffView={showDiffView}
+          showLoader={showLoader}
+          isTransformSelected={isTransformSelected}
+          toolbarPosition={toolbarPosition}
+          handleChangePromptInput={handleChangePromptInput}
+          handleSubmitPromptToTransform={handleSubmitPromptToTransform}
+          setIsInteractingWithToolbar={setIsInteractingWithToolbar}
+          originalText={originalText}
+          suggestedText={suggestedText}
+          transformError={transformError}
+          retryCount={retryCount}
+        />
 
-  const handleChangePromptInput = () => {
-    setIsTransformSelected(true);
-    setIsInteractingWithToolbar(true);
-  };
+        <ChatAssistant
+          isOpen={isChatAssistantOpen}
+          onClose={closeChatAssistant}
+          selectedText={selectedText}
+          quillRef={quillRef}
+        />
 
-  return (
-    <EditorContainer>
-      <QuillEditor
-        quillRef={quillRef}
-        value={textValue}
-        onChange={handleChange}
-        onChangeSelection={handleSelectionChange}
-      />
-      <FloatingToolbar
-        showToolbar={showToolbar}
-        showDiffView={showDiffView}
-        showLoader={showLoader}
-        isTransformSelected={isTransformSelected}
-        toolbarPosition={toolbarPosition}
-        handleChangePromptInput={handleChangePromptInput}
-        handleSubmitPromptToTransform={handleSubmitPromptToTransform}
-        setIsInteractingWithToolbar={setIsInteractingWithToolbar}
-        originalText={originalText}
-        suggestedText={suggestedText}
-        transformError={transformError}
-        retryCount={retryCount}
-      />
+        <TransformModal
+          isOpen={isTransformModalOpen}
+          onClose={handleTransformModalClose}
+          onAccept={handleTransformAccept}
+          onReject={handleTransformReject}
+          originalText={modalOriginalText}
+          transformedText={modalTransformedText}
+          isLoading={showLoader}
+          error={transformError}
+        />
+      </EditorContainer>
+    );
+  },
+);
 
-      <ChatAssistant
-        isOpen={isChatAssistantOpen}
-        onClose={closeChatAssistant}
-        selectedText={selectedText}
-        quillRef={quillRef}
-      />
-
-      <TransformModal
-        isOpen={isTransformModalOpen}
-        onClose={handleTransformModalClose}
-        onAccept={handleTransformAccept}
-        onReject={handleTransformReject}
-        originalText={modalOriginalText}
-        transformedText={modalTransformedText}
-        isLoading={showLoader}
-        error={transformError}
-      />
-    </EditorContainer>
-  );
-}
+export default TextEditor;
 
 export type Suggestion = {
   currentWord: string;
