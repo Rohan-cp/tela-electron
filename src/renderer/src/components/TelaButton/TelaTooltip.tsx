@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import styled from "styled-components";
 import { HStack, VStack } from "../Spacer/Stack";
 import { useCallback, useMemo, useState } from "react";
@@ -12,23 +11,21 @@ type Props = {
   whiteSpace?: "nowrap" | "normal";
 };
 
-export default function Tooltip({ className, dataTestId }: Props) {
+export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
   const { setIsChangelogModalOpen, setIsFeedbackFormModalOpen } =
     useModalContext();
   const [isNewVersionAvailable] = useState(true);
   const [userMode] = useState("editor");
 
-  const handleOpenChangelogModal = useCallback(
-    () => setIsChangelogModalOpen(true),
-    [],
-  );
+  const handleOpenChangelogModal = useCallback((): void => {
+    setIsChangelogModalOpen(true);
+  }, [setIsChangelogModalOpen]);
 
-  const handleOpenFeedbackModal = useCallback(
-    () => setIsFeedbackFormModalOpen(true),
-    [],
-  );
+  const handleOpenFeedbackModal = useCallback((): void => {
+    setIsFeedbackFormModalOpen(true);
+  }, [setIsFeedbackFormModalOpen]);
 
-  const switchHref = useMemo(() => {
+  const switchHref = useMemo((): string => {
     if (userMode === "editor") {
       return "/auth";
     } else {

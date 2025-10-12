@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 import { useNavigate } from "react-router-dom";
 import LeftArrowIcon from "../../assets/LeftArrowIcon.svg";
 
-export default function BackButton() {
+export default function BackButton(): JSX.Element {
   const navigate = useNavigate();
 
-  const handleGoBack = () => {
+  const handleGoBack = (): void => {
     navigate(-1);
   };
 

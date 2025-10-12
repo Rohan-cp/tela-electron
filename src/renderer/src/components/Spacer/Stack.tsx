@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 /**
  * This system is proposed in this doc: https://www.notion.so/gallery-so/Why-the-Spacer-component-is-bad-297ed40731d24b80926659b1cb8fc58d
  *

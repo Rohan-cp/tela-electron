@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 declare module "react" {
   interface CSSProperties {
     WebkitAppRegion?: "drag" | "no-drag";
@@ -169,7 +167,7 @@ export default function Editor(): JSX.Element {
         saveStatusTimeoutRef.current = null;
       }, 3000);
     }
-    return () => {
+    return (): void => {
       if (saveStatusTimeoutRef.current) {
         clearTimeout(saveStatusTimeoutRef.current);
         saveStatusTimeoutRef.current = null;
@@ -179,7 +177,7 @@ export default function Editor(): JSX.Element {
 
   // Handle CMD+N for new file
   useEffect(() => {
-    const handleNew = (event: KeyboardEvent) => {
+    const handleNew = (event: KeyboardEvent): void => {
       if ((event.metaKey || event.ctrlKey) && event.key === "n") {
         event.preventDefault();
         createNewFile();
@@ -188,7 +186,7 @@ export default function Editor(): JSX.Element {
 
     document.addEventListener("keydown", handleNew);
 
-    return () => {
+    return (): void => {
       document.removeEventListener("keydown", handleNew);
     };
   }, [createNewFile]);
@@ -214,7 +212,8 @@ export default function Editor(): JSX.Element {
 
   const serializeDocument = useCallback(
     (title: string, description: string, body: string): string => {
-      const safe = (val: string) => (val ?? "").replace(/\r\n|\r/g, "\n");
+      const safe = (val: string): string =>
+        (val ?? "").replace(/\r\n|\r/g, "\n");
       const fmTitle = safe(title).replace(/"/g, '\\"');
       const fmDesc = safe(description).replace(/"/g, '\\"');
       return `---\ntitle: "${fmTitle}"\ndescription: "${fmDesc}"\n---\n\n${safe(body)}`;
@@ -275,7 +274,7 @@ export default function Editor(): JSX.Element {
     if (scrollContainer) {
       scrollContainer.addEventListener("scroll", handleScroll);
     }
-    return () => {
+    return (): void => {
       if (scrollContainer) {
         scrollContainer.removeEventListener("scroll", handleScroll);
       }
@@ -283,7 +282,10 @@ export default function Editor(): JSX.Element {
   }, [handleScroll]);
 
   const handleFileCreated = useCallback(
-    (_event: Electron.IpcRendererEvent, { filePath }: { filePath: string }) => {
+    (
+      _event: Electron.IpcRendererEvent,
+      { filePath }: { filePath: string },
+    ): void => {
       setCurrentFilePath(filePath);
       const fileName = filePath.split("/").pop() ?? "file";
       setSaveStatus(`created ${fileName}`);
@@ -292,7 +294,7 @@ export default function Editor(): JSX.Element {
   );
 
   useEffect(() => {
-    const handleSave = (event: KeyboardEvent) => {
+    const handleSave = (event: KeyboardEvent): void => {
       if ((event.metaKey || event.ctrlKey) && event.key === "s") {
         event.preventDefault();
         if (currentFilePath) {
@@ -319,7 +321,7 @@ export default function Editor(): JSX.Element {
     document.addEventListener("keydown", handleSave);
     window.api.onFileCreated(handleFileCreated);
 
-    return () => {
+    return (): void => {
       document.removeEventListener("keydown", handleSave);
       window.api.removeFileCreatedListener(handleFileCreated);
     };
@@ -327,7 +329,7 @@ export default function Editor(): JSX.Element {
 
   // use effect to handle opening document on CMD+o
   useEffect(() => {
-    const handleOpen = (event: KeyboardEvent) => {
+    const handleOpen = (event: KeyboardEvent): void => {
       if ((event.metaKey || event.ctrlKey) && event.key === "o") {
         event.preventDefault();
         window.api.triggerOpenDocument();
@@ -337,9 +339,8 @@ export default function Editor(): JSX.Element {
 
     const handleFileOpened = (
       _event: Electron.IpcRendererEvent,
-      ...args: unknown[]
-    ) => {
-      const data = args[0] as { filePath: string; content: string };
+      data: { filePath: string; content: string },
+    ): void => {
       const { filePath, content } = data;
       const parsed = parseDocument(content);
       setTextValue(parsed.body ?? "");
@@ -355,7 +356,7 @@ export default function Editor(): JSX.Element {
     };
     window.api.onFileOpened(handleFileOpened);
 
-    return () => {
+    return (): void => {
       document.removeEventListener("keydown", handleOpen);
       window.api.removeFileOpenedListener(handleFileOpened);
     };
@@ -363,7 +364,7 @@ export default function Editor(): JSX.Element {
 
   // minimize zoomfactor with CMD+'-'
   useEffect(() => {
-    const handleMinimize = (event: KeyboardEvent) => {
+    const handleMinimize = (event: KeyboardEvent): void => {
       if ((event.metaKey || event.ctrlKey) && event.key === "z") {
         event.preventDefault();
         window.electron.webFrame.setZoomFactor(1);
@@ -371,7 +372,7 @@ export default function Editor(): JSX.Element {
     };
     document.addEventListener("keydown", handleMinimize);
 
-    return () => {
+    return (): void => {
       document.removeEventListener("keydown", handleMinimize);
     };
   }, []);
@@ -450,9 +451,7 @@ export default function Editor(): JSX.Element {
                     setTextValue={setTextValue}
                     setSuggestion={setSuggestion}
                     setFileTree={setFileTree}
-                    setAutocompleteState={(state: unknown) =>
-                      setAutocompleteState(state as LLMAutocompleteState | null)
-                    }
+                    setAutocompleteState={setAutocompleteState}
                     fileTree={fileTree}
                     suggestion={suggestion || undefined}
                     textValue={textValue}

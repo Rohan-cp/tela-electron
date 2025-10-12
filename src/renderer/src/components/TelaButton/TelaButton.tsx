@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { useState } from "react";
 import telaIcon from "../../assets/telaButtonIcon.png";
 import TelaTooltip from "./TelaTooltip";
@@ -9,7 +8,7 @@ import styled from "styled-components";
 export default function TelaButton(): JSX.Element {
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const handleToggleTooltip = () => {
+  const handleToggleTooltip = (): void => {
     setShowTooltip((currVal) => !currVal);
   };
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import { Subtree } from "@renderer/utils/textOps";
 import { useEditorContext } from "@renderer/contexts/EditorContext";
@@ -16,7 +15,10 @@ import {
   useMouseEvents,
   useChatAssistant,
 } from "@renderer/hooks";
-import { useLLMAutocomplete } from "@renderer/hooks/useLLMAutocomplete";
+import {
+  useLLMAutocomplete,
+  LLMAutocompleteState,
+} from "@renderer/hooks/useLLMAutocomplete";
 import "./TextEditor.css";
 
 type Props = {
@@ -26,7 +28,7 @@ type Props = {
   setTextValue: (txt: string) => void;
   setSuggestion: (newSuggestion: Suggestion | null) => void;
   setFileTree: (newFileTree: Subtree[]) => void;
-  setAutocompleteState: (state: unknown) => void;
+  setAutocompleteState: (state: LLMAutocompleteState | null) => void;
   textValue: string;
   fileTree: Subtree[];
   suggestion?: Suggestion;
@@ -43,8 +45,6 @@ const TextEditor = forwardRef<{ getEditor: () => unknown }, Props>(
       setFileTree,
       setAutocompleteState,
       textValue,
-      fileTree: _fileTree, // eslint-disable-line @typescript-eslint/no-unused-vars
-      suggestion: _suggestion, // eslint-disable-line @typescript-eslint/no-unused-vars
     },
     ref,
   ) {
@@ -60,7 +60,6 @@ const TextEditor = forwardRef<{ getEditor: () => unknown }, Props>(
         setFileTree,
       });
 
-    // Expose getEditor method to parent component
     useImperativeHandle(ref, () => ({
       getEditor: () => quillRef.current?.getEditor(),
     }));
@@ -118,7 +117,6 @@ const TextEditor = forwardRef<{ getEditor: () => unknown }, Props>(
       openChatAssistant,
     } = useChatAssistant();
 
-    // Set up keyboard shortcuts
     useKeyboardShortcuts({
       quillRef,
       formatHeader,
@@ -126,14 +124,11 @@ const TextEditor = forwardRef<{ getEditor: () => unknown }, Props>(
       setToolbarPosition,
       setShowToolbar,
       setIsTransformSelected,
-      setSelectedText: () => {
-        // This will be handled by the chat assistant hook
-      },
+      setSelectedText: () => {},
       setIsChatAssistantOpen: (
         open: boolean | ((prev: boolean) => boolean),
       ) => {
         if (open) {
-          // Get selected text from Quill editor
           const quill = quillRef.current?.getEditor();
           if (quill) {
             const selection = quill.getSelection();
@@ -190,7 +185,7 @@ const TextEditor = forwardRef<{ getEditor: () => unknown }, Props>(
       setAutocompleteState(autocompleteState);
     }, [autocompleteState, setAutocompleteState]);
 
-    const handleChangePromptInput = () => {
+    const handleChangePromptInput = (): void => {
       setIsTransformSelected(true);
       setIsInteractingWithToolbar(true);
     };

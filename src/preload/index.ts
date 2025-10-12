@@ -1,51 +1,78 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 const { contextBridge, ipcRenderer } = require("electron");
 const { electronAPI } = require("@electron-toolkit/preload");
 
+type IpcRendererEvent = Electron.IpcRendererEvent;
+
+interface WindowWithGlobals extends Window {
+  electron: typeof electronAPI;
+  api: typeof api;
+}
+
 // Custom APIs for renderer
 const api = {
-  registerCreateDocumentClick: (callback) => {
+  registerCreateDocumentClick: (
+    callback: (event: IpcRendererEvent) => void,
+  ): void => {
     ipcRenderer.on("create-document-click", callback);
   },
-  documentCreated: (callback) => {
+  documentCreated: (callback: (event: IpcRendererEvent) => void): void => {
     ipcRenderer.on("document-created", callback);
   },
-  triggerCreateDocument: (textVal) => {
+  triggerCreateDocument: (textVal: string): void => {
     ipcRenderer.send("create-document-triggered", textVal);
   },
-  triggerSaveDocument: (filePath, textVal) => {
+  triggerSaveDocument: (filePath: string, textVal: string): void => {
     ipcRenderer.send("save-document-triggered", { filePath, textVal });
   },
-  triggerOpenDocument: () => {
+  triggerOpenDocument: (): void => {
     ipcRenderer.send("open-document-triggered");
   },
-  onFileOpened: (callback) => {
+  onFileOpened: (
+    callback: (
+      event: IpcRendererEvent,
+      data: { filePath: string; content: string },
+    ) => void,
+  ): void => {
     ipcRenderer.on("file-opened", callback);
   },
-  onFileCreated: (callback) => {
+  onFileCreated: (
+    callback: (event: IpcRendererEvent, data: { filePath: string }) => void,
+  ): void => {
     ipcRenderer.on("file-created", callback);
   },
-  removeFileOpenedListener: (callback) => {
+  removeFileOpenedListener: (
+    callback: (event: IpcRendererEvent, ...args: unknown[]) => void,
+  ): void => {
     ipcRenderer.removeListener("file-opened", callback);
   },
-  removeFileCreatedListener: (callback) => {
+  removeFileCreatedListener: (
+    callback: (event: IpcRendererEvent, data: { filePath: string }) => void,
+  ): void => {
     ipcRenderer.removeListener("file-created", callback);
   },
-  notifyRouteChange: (route) => {
+  notifyRouteChange: (route: string): void => {
     ipcRenderer.send("route-changed", route);
   },
-  initiateGoogleAuth: () => {
+  initiateGoogleAuth: (): void => {
     ipcRenderer.send("initiate-google-auth");
   },
-  onAuthSuccess: (callback) => {
-    ipcRenderer.on("auth-success", (event, data) => {
-      callback(event, data);
-    });
+  onAuthSuccess: (
+    callback: (
+      event: IpcRendererEvent,
+      data: { email: string; token?: string },
+    ) => void,
+  ): void => {
+    ipcRenderer.on("auth-success", callback);
   },
-  removeAuthSuccessListener: (callback) => {
+  removeAuthSuccessListener: (
+    callback: (
+      event: IpcRendererEvent,
+      data: { email: string; token?: string },
+    ) => void,
+  ): void => {
     ipcRenderer.removeListener("auth-success", callback);
   },
-  checkAuthStatus: () => {
+  checkAuthStatus: (): void => {
     ipcRenderer.send("check-auth-status");
   },
 };
@@ -61,10 +88,9 @@ if (process.contextIsolated) {
     console.error(error);
   }
 } else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI;
-  // @ts-ignore (define in dts)
-  window.api = api;
+  const globalWindow = window as unknown as WindowWithGlobals;
+  globalWindow.electron = electronAPI;
+  globalWindow.api = api;
 }
 
 module.exports = {};

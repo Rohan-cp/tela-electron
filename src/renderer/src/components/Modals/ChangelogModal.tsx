@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 import styled from "styled-components";
 import { HStack, VStack } from "../Spacer/Stack";
 
@@ -7,8 +5,8 @@ type Props = {
   onClose: () => void;
 };
 
-export default function ChangelogModal({ onClose }: Props) {
-  const handleBgClick = (e: React.MouseEvent<HTMLDivElement>) => {
+export default function ChangelogModal({ onClose }: Props): JSX.Element {
+  const handleBgClick = (e: React.MouseEvent<HTMLDivElement>): void => {
     if (e.target === e.currentTarget) {
       onClose();
     }
@@ -100,7 +98,7 @@ type ChangelogItemProps = {
   date: string;
 };
 
-function ChangelogItem({ date, changeItems }: ChangelogItemProps) {
+function ChangelogItem({ date, changeItems }: ChangelogItemProps): JSX.Element {
   return (
     <HStack gap={100}>
       <DateText>{date}</DateText>
