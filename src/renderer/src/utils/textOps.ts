@@ -1,22 +1,16 @@
 export function countWords(str: string): number {
   str = str.trim();
 
-  // If the string is empty after trimming, return 0
   if (str === "") return 0;
 
-  // Split the string by whitespace and newline characters
   const words = str.split(/\s+|\n+/);
 
-  // Return the number of words
   return words.length;
 }
 
 export function countLineBreaks(str: string): number {
-  // Use a regular expression to match all occurrences of line breaks
   const lineBreaks = str.match(/\n/g);
 
-  // If there are no line breaks, return 0
-  // Otherwise, return the number of line breaks found
   return lineBreaks ? lineBreaks.length : 0;
 }
 
@@ -29,7 +23,6 @@ type HeaderLine = {
   type: "h1" | "h2";
 };
 
-// If not using TypeScript, you can just work with the object shape directly
 export function extractHeaders(textContent: string): HeaderLine[] {
   const headers: HeaderLine[] = [];
   let currentIndex = 0;
@@ -95,10 +88,10 @@ export function createHeaderLines(
           text: line,
           type: isLineAHeader(line, headers),
         };
-        currentIndex += line.length + 1; // +1 for the newline character
+        currentIndex += line.length + 1;
         return result;
       }
-      currentIndex += line.length + 1; // +1 for the newline character
+      currentIndex += line.length + 1;
       return null;
     })
     .filter(
@@ -126,10 +119,10 @@ export function getHeaderLines(str: string): Header[] | null {
           length: line.length,
           text: line,
         };
-        currentIndex += line.length + 1; // +1 for the newline character
+        currentIndex += line.length + 1;
         return result;
       }
-      currentIndex += line.length + 1; // +1 for the newline character
+      currentIndex += line.length + 1;
       return null;
     })
     .filter(

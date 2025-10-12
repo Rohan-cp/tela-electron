@@ -164,8 +164,6 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     );
   }
 
-  // Return null for standard view instead of rendering it
-  // The standard view code is kept but not rendered
   return null;
 };
 

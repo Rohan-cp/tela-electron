@@ -12,7 +12,6 @@ let mainWindow: BrowserWindow | null = null;
 let authWindows: BrowserWindow[] = [];
 let authServer: Server | null = null;
 
-// Add this to resolve the pendingAuthData global type
 interface AuthData {
   email: string;
   name: string;
@@ -25,8 +24,6 @@ declare const global: typeof globalThis & {
 };
 
 function createMainWindow(): BrowserWindow {
-  // Create the browser window.
-  // console.log('app.getAppPath()', app.getAppPath())
   mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
@@ -60,7 +57,6 @@ function createMainWindow(): BrowserWindow {
     mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
 
-  // Track window closure
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
@@ -68,21 +64,14 @@ function createMainWindow(): BrowserWindow {
   return mainWindow;
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  // Set app user model id for windows
   electronApp.setAppUserModelId("com.electron");
 
-  // Default open or close DevTools by F12 in development
-  // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
   app.on("browser-window-created", (_, window) => {
     optimizer.watchWindowShortcuts(window);
   });
 
-  // IPC test
   ipcMain.on("ping", () => {});
 
   createMainWindow();
@@ -109,7 +98,6 @@ ipcMain.on("create-document-triggered", (_, textVal) => {
           console.error("error", err);
           return;
         } else {
-          // Send the file path back to the renderer
           mainWindow?.webContents.send("file-created", { filePath });
         }
       });
@@ -146,8 +134,6 @@ ipcMain.on("open-document-triggered", () => {
           console.error("Error reading file:", err);
           return;
         }
-        // console.log('File contents:', data)
-        // Send the file contents to the renderer process
         if (mainWindow) {
           mainWindow.webContents.send("file-opened", {
             filePath: filePathToOpen,
@@ -161,7 +147,6 @@ ipcMain.on("open-document-triggered", () => {
     });
 });
 
-// Add this handler after other ipcMain handlers
 ipcMain.on("route-changed", (_, route) => {
   if (!mainWindow) return;
 
@@ -169,11 +154,10 @@ ipcMain.on("route-changed", (_, route) => {
   // we need to resize window later
   if (route === "/auth") {
     mainWindow.setSize(597, 669);
-    mainWindow.center(); // Optional: center the window after resizing
+    mainWindow.center();
   } else {
-    // Default size for root route '/' or any other route
     mainWindow.setSize(900, 670);
-    mainWindow.center(); // Optional: center the window after resizing
+    mainWindow.center();
   }
 });
 
@@ -186,9 +170,7 @@ app.on("window-all-closed", () => {
   }
 });
 
-// Function to create auth callback server
 function createAuthCallbackServer(): Server {
-  // If a server is already running, close it first
   if (authServer) {
     try {
       authServer.close();
@@ -207,14 +189,12 @@ function createAuthCallbackServer(): Server {
     const parsedUrl = parseUrl(req.url, true);
 
     if (parsedUrl.pathname === "/auth-success") {
-      // Handle successful authentication
       const userData = {
         email: parsedUrl.query.email as string,
         name: parsedUrl.query.name as string,
         token: parsedUrl.query.token as string,
       };
 
-      // Check if main window is available
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send("auth-success", userData);
       } else {
@@ -223,11 +203,9 @@ function createAuthCallbackServer(): Server {
         // Store the auth data for when the window becomes available
         global.pendingAuthData = userData;
 
-        // If the main window was closed, create a new one
         if (!mainWindow) {
           mainWindow = createMainWindow();
 
-          // Send auth data after window is loaded
           mainWindow.webContents.on("did-finish-load", () => {
             if (global.pendingAuthData) {
               mainWindow?.webContents.send(
@@ -240,7 +218,6 @@ function createAuthCallbackServer(): Server {
         }
       }
 
-      // Rest of your response code
       res.writeHead(200, { "Content-Type": "text/html" });
       res.end(`
         <html>
@@ -261,7 +238,6 @@ function createAuthCallbackServer(): Server {
         </html>
       `);
 
-      // Close the server after handling the callback
       setTimeout(() => {
         if (server) {
           server.close();
@@ -269,13 +245,11 @@ function createAuthCallbackServer(): Server {
         }
       }, 5000);
     } else {
-      // Handle unknown paths
       res.writeHead(404);
       res.end();
     }
   });
 
-  // Add console logging when server starts
   server.on("listening", () => {
     const address = server.address();
     if (address && typeof address === "object" && "port" in address) {
@@ -289,14 +263,10 @@ function createAuthCallbackServer(): Server {
   return server;
 }
 
-// Setup IPC handlers
 function setupIpcHandlers(): void {
   ipcMain.on("initiate-google-auth", () => {
     try {
-      // Start the local server to receive the OAuth callback
       createAuthCallbackServer();
-
-      // Open the OAuth URL in the user's default browser
       shell.openExternal("http://localhost:3001/api/auth/google");
     } catch (err) {
       console.error("Error initiating Google auth:", err);
@@ -308,7 +278,6 @@ function setupIpcHandlers(): void {
     }
   });
 
-  // Add a check-auth-status handler
   ipcMain.on("check-auth-status", () => {
     if (global.pendingAuthData && mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send("auth-success", global.pendingAuthData);
@@ -317,9 +286,7 @@ function setupIpcHandlers(): void {
   });
 }
 
-// Clean up function to close all windows and servers
 function cleanupAllResources(): void {
-  // Close auth server if running
   if (authServer) {
     try {
       authServer.close();
@@ -329,7 +296,6 @@ function cleanupAllResources(): void {
     }
   }
 
-  // Close all auth windows
   authWindows.forEach((win) => {
     if (win && !win.isDestroyed()) {
       try {
@@ -341,7 +307,6 @@ function cleanupAllResources(): void {
   });
   authWindows = [];
 
-  // Close main window
   if (mainWindow && !mainWindow.isDestroyed()) {
     try {
       mainWindow.close();
@@ -352,7 +317,6 @@ function cleanupAllResources(): void {
   }
 }
 
-// App event handlers
 app.on("ready", () => {
   mainWindow = createMainWindow();
   setupIpcHandlers();
@@ -370,7 +334,6 @@ app.on("activate", () => {
   }
 });
 
-// Handle app quitting
 app.on("will-quit", () => {
   cleanupAllResources();
 });
@@ -386,12 +349,8 @@ process.on("SIGTERM", () => {
   app.quit();
 });
 
-// Uncaught exceptions
 process.on("uncaughtException", (error) => {
   console.error("Uncaught exception:", error);
   cleanupAllResources();
   app.quit();
 });
-
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.
