@@ -95,7 +95,6 @@ export function useSelectionHandling({
 
         // Update the active headers based on cursor position
         if (index !== undefined) {
-          // Find the header that contains the current cursor position
           const fileText = editor.getText();
           const content = editor.getHTML();
           const headersExtracted = extractHeaders(content ?? "");
@@ -109,55 +108,84 @@ export function useSelectionHandling({
           let nearestH2: Selection | null = null;
           let nearestH1Distance = Infinity;
           let nearestH2Distance = Infinity;
+          let currentH1: Selection | null = null;
+          let currentH2: Selection | null = null;
 
           if (headerLines) {
-            // Find the nearest H1 and H2 headers before the cursor
+            // First check if we're AT a header position
             for (const header of headerLines) {
               const headerIndex = header.index;
 
-              // Only consider headers that are before the cursor
-              if (headerIndex <= index) {
-                const distance = index - headerIndex;
+              if (
+                index >= headerIndex &&
+                index <= headerIndex + header.length
+              ) {
+                if (header.type === "h1") {
+                  currentH1 = {
+                    index: header.index,
+                    length: header.length,
+                  };
+                } else if (header.type === "h2") {
+                  currentH2 = {
+                    index: header.index,
+                    length: header.length,
+                  };
+                }
+              }
+            }
 
-                if (header.type === "h1" && distance < nearestH1Distance) {
-                  nearestH1 = {
-                    index: header.index,
-                    length: header.length,
-                  };
-                  nearestH1Distance = distance;
-                } else if (
-                  header.type === "h2" &&
-                  distance < nearestH2Distance
-                ) {
-                  nearestH2 = {
-                    index: header.index,
-                    length: header.length,
-                  };
-                  nearestH2Distance = distance;
+            // If we're not at a header, find the nearest H1 and H2 headers before the cursor
+            if (!currentH1 && !currentH2) {
+              for (const header of headerLines) {
+                const headerIndex = header.index;
+
+                if (headerIndex < index) {
+                  const distance = index - headerIndex;
+
+                  if (header.type === "h1" && distance < nearestH1Distance) {
+                    nearestH1 = {
+                      index: header.index,
+                      length: header.length,
+                    };
+                    nearestH1Distance = distance;
+                  } else if (
+                    header.type === "h2" &&
+                    distance < nearestH2Distance
+                  ) {
+                    nearestH2 = {
+                      index: header.index,
+                      length: header.length,
+                    };
+                    nearestH2Distance = distance;
+                  }
                 }
               }
             }
           }
 
-          // Update the context - prioritize H2 over H1 for parentHeaderActive
-          if (nearestH2) {
+          // Update the context - prioritize current position, then nearest headers
+          // Prioritize H2 over H1 for parentHeaderActive
+          if (currentH2) {
+            setParentHeaderActive(null);
+            setParentHeader2Active(currentH2);
+          } else if (currentH1) {
+            setParentHeaderActive(currentH1);
+            setParentHeader2Active(null);
+          } else if (nearestH2) {
             setParentHeaderActive(null);
             setParentHeader2Active(nearestH2);
           } else if (nearestH1) {
             setParentHeaderActive(nearestH1);
             setParentHeader2Active(null);
           } else {
-            // No headers found before cursor
             setParentHeaderActive(null);
             setParentHeader2Active(null);
           }
         }
 
         if (length > 0) {
-          // Show the toolbar
           const bounds = quillRef.current?.getEditor().getBounds(index, length);
 
-          // Fix the 'bounds' is possibly 'null' error
           if (bounds) {
             // Position the toolbar below the selection
             setToolbarPosition({
@@ -170,11 +198,9 @@ export function useSelectionHandling({
 
           handleUpdatingSelectedStats(range, editor);
         } else {
-          // No text is selected, clear the selected stats
           setSelectedStats(null);
         }
       } else {
-        // No range, clear the selected stats
         setSelectedStats(null);
       }
     },
@@ -191,7 +217,39 @@ export function useSelectionHandling({
     if (scrollToHeader) {
       const quill = quillRef.current?.getEditor();
       if (!quill) return;
+
       quill.setSelection(scrollToHeader.index, scrollToHeader.length, "api");
+
+      const bounds = quill.getBounds(
+        scrollToHeader.index,
+        scrollToHeader.length,
+      );
+
+      if (bounds) {
+        const editorElement = quill.root;
+        let scrollContainer = editorElement.parentElement;
+
+        while (scrollContainer) {
+          const overflowY = window.getComputedStyle(scrollContainer).overflowY;
+          if (overflowY === "auto" || overflowY === "scroll") {
+            break;
+          }
+          scrollContainer = scrollContainer.parentElement;
+        }
+
+        if (scrollContainer) {
+          const headerTopRelativeToEditor = bounds.top;
+          const editorTopRelativeToContainer = editorElement.offsetTop;
+          const targetScrollTop =
+            headerTopRelativeToEditor + editorTopRelativeToContainer - 100; // 100px padding from top
+
+          scrollContainer.scrollTo({
+            top: Math.max(0, targetScrollTop),
+            behavior: "smooth",
+          });
+        }
+      }
+
       setScrollToHeader(null);
     }
   }, [scrollToHeader, quillRef, setScrollToHeader]);
