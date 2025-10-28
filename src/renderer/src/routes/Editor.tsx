@@ -60,7 +60,11 @@ export default function Editor(): JSX.Element {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<number | null>(null);
   const saveStatusTimeoutRef = useRef<number | null>(null);
-  const quillRef = useRef<{ getEditor: () => unknown } | null>(null);
+  const quillRef = useRef<{
+    getEditor: () => unknown;
+    updateFileStats: () => void;
+  } | null>(null);
+  const needsFileTreeUpdate = useRef<boolean>(false);
 
   const createNewFile = useCallback(() => {
     if (quillRef.current) {
@@ -102,27 +106,8 @@ export default function Editor(): JSX.Element {
 
         const assistantMessage = response.message;
         if (assistantMessage && assistantMessage.content) {
-          if (quillRef.current) {
-            const quill = quillRef.current.getEditor();
-            if (
-              quill &&
-              typeof quill === "object" &&
-              "clipboard" in quill &&
-              quill.clipboard &&
-              typeof quill.clipboard === "object" &&
-              "dangerouslyPasteHTML" in quill.clipboard &&
-              typeof quill.clipboard.dangerouslyPasteHTML === "function" &&
-              "setText" in quill &&
-              typeof quill.setText === "function"
-            ) {
-              quill.setText("");
-              quill.clipboard.dangerouslyPasteHTML(0, assistantMessage.content);
-            } else {
-              setTextValue(assistantMessage.content);
-            }
-          } else {
-            setTextValue(assistantMessage.content);
-          }
+          setTextValue(assistantMessage.content);
+          needsFileTreeUpdate.current = true;
         }
 
         setIsProcessingInitialMessage(false);
@@ -138,6 +123,24 @@ export default function Editor(): JSX.Element {
   useEffect(() => {
     window.electron.webFrame.setZoomFactor(1);
   }, []);
+
+  useEffect(() => {
+    if (
+      !isProcessingInitialMessage &&
+      needsFileTreeUpdate.current &&
+      quillRef.current
+    ) {
+      const timeoutId = setTimeout(() => {
+        if (quillRef.current?.updateFileStats) {
+          quillRef.current.updateFileStats();
+        }
+        needsFileTreeUpdate.current = false;
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+    return undefined;
+  }, [isProcessingInitialMessage]);
 
   useEffect(() => {
     if (textValue.trim() !== "" || currentFilePath !== null) {

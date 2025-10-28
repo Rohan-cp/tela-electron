@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import telaIconRound from "../../assets/telaIconRound.svg";
 import UpArrowIcon from "../../assets/UpArrowIcon.svg";
 
@@ -68,6 +68,30 @@ export default function InitialPrompt({
   );
 }
 
+// Animation for spinning in the logo
+const spinIn = keyframes`
+  0% {
+    opacity: 0;
+    transform: rotate(-180deg) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+`;
+
+// Animation for fading in from bottom
+const fadeInUp = keyframes`
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -96,6 +120,7 @@ const IconWrapper = styled.div`
   align-items: center;
   justify-content: center;
   padding: 12px;
+  animation: ${spinIn} 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 `;
 
 const Icon = styled.img`
@@ -111,6 +136,7 @@ const Title = styled.h1`
   margin: 0;
   font-family: NM-Medium;
   text-align: center;
+  animation: ${fadeInUp} 0.6s ease-out 0.3s backwards;
 `;
 
 const InputContainer = styled.div`
@@ -122,11 +148,12 @@ const InputContainer = styled.div`
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 16px;
-  padding-bottom: 16px;
+  padding-bottom: 56px;
   min-width: 600px;
   min-height: 90px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  animation: ${fadeInUp} 0.6s ease-out 0.5s backwards;
 `;
 
 const StyledTextarea = styled.textarea`
@@ -154,6 +181,7 @@ const StyledTextarea = styled.textarea`
 const SubmitButton = styled.button<{ disabled?: boolean }>`
   position: absolute;
   right: 16px;
+  bottom: 16px;
   width: 32px;
   height: 32px;
   border-radius: 50%;

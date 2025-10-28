@@ -13,6 +13,7 @@
   padding-left: 20px;
   padding-right: 20px;
   color: var(--tela-text-primary);
+  letter-spacing: 0.02em;
   caret-color: var(--tela-caret-color);
   overflow: visible;
 }
