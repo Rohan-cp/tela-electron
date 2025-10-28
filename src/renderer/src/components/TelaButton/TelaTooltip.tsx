@@ -27,9 +27,9 @@ export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
 
   const switchHref = useMemo((): string => {
     if (userMode === "editor") {
-      return "/auth";
+      return "#/";
     } else {
-      return "/";
+      return "#/";
     }
   }, [userMode]);
 

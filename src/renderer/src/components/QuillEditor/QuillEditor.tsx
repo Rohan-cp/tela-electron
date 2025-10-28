@@ -26,6 +26,17 @@ const modules = {
   clipboard: {
     matchVisual: false,
   },
+  keyboard: {
+    bindings: {
+      tab: {
+        key: 9, // Tab key code
+        handler: function () {
+          // Prevent Quill from handling Tab - we'll handle it ourselves
+          return false;
+        },
+      },
+    },
+  },
 };
 
 const formats = [

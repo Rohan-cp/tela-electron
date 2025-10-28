@@ -266,13 +266,7 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
     } else {
       generateSuggestion();
     }
-  }, [
-    state.isActive,
-    state.isLoading,
-    state.suggestion,
-    acceptSuggestion,
-    generateSuggestion,
-  ]);
+  }, [state.isActive, acceptSuggestion, generateSuggestion]);
 
   const handleEscapePress = useCallback(() => {
     if (state.isActive) {

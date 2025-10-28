@@ -83,9 +83,12 @@ export default function BottomSidebar({
       return <Text>{fileStatsText}</Text>;
     } else if (type === BottomSidebarTypes.AUTOCOMPLETE) {
       if (autocompleteState?.isLoading) {
-        return <Text>🤖 Preparing autocomplete suggestion...</Text>;
+        return <Text>generating your autocomplete suggestion...</Text>;
+      } else if (autocompleteState?.error) {
+        // TODO(Rohan) we should not have this in prod app
+        return <Text>{autocompleteState.error}</Text>;
       }
-      return <Text>🤖 Ready for autocomplete</Text>;
+      return <Text>ready for autocomplete</Text>;
     } else if (type === BottomSidebarTypes.SCROLL_PROGRESS) {
       return <ScrollProgressBar scrollPercent={scrollPercent} />;
     } else if (type === BottomSidebarTypes.SAVED_FILE) {

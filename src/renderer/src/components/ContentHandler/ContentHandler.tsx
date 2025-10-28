@@ -84,8 +84,12 @@ export function useContentHandler({
 
   // Set up key event listeners on the Quill editor
   useEffect(() => {
-    const quill = quillRef.current?.getEditor();
-    if (!quill) {
+    if (!quillRef.current) {
+      return;
+    }
+
+    const quill = quillRef.current.getEditor();
+    if (!quill || !quill.root) {
       return;
     }
 
@@ -109,7 +113,7 @@ export function useContentHandler({
     return (): void => {
       editorElement.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [quillRef, handleTabPress, handleEscapePress]);
+  }, [handleTabPress, handleEscapePress]);
 
   return { handleChange };
 }

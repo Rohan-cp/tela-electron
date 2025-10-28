@@ -20,8 +20,11 @@ const SuggestedChangeItem = React.memo(function SuggestedChangeItem({
   quillRef,
 }: SuggestedChangeItemProps): JSX.Element {
   const { applyChange, isApplyingChange } = useChat();
+  const [isApplied, setIsApplied] = React.useState(change.isApplied);
 
   const handleApplyChange = useCallback(async (): Promise<void> => {
+    if (isApplied) return; // Prevent multiple applications
+
     try {
       if (quillRef.current) {
         const quill = quillRef.current.getEditor();
@@ -41,6 +44,7 @@ const SuggestedChangeItem = React.memo(function SuggestedChangeItem({
       }
 
       await applyChange(change.id);
+      setIsApplied(true);
     } catch (error) {
       console.error("Failed to apply change:", error);
     }
@@ -50,6 +54,7 @@ const SuggestedChangeItem = React.memo(function SuggestedChangeItem({
     change.currentText,
     change.suggestedText,
     quillRef,
+    isApplied,
   ]);
 
   return (
@@ -73,13 +78,18 @@ const SuggestedChangeItem = React.memo(function SuggestedChangeItem({
           >
             <div
               onClick={handleApplyChange}
-              className="apply-change-btn"
+              className={`apply-change-btn ${isApplied ? "applied" : ""}`}
               style={{
-                opacity: isApplyingChange ? 0.5 : 1,
-                cursor: isApplyingChange ? "not-allowed" : "pointer",
+                opacity: isApplied || isApplyingChange ? 0.5 : 1,
+                cursor:
+                  isApplied || isApplyingChange ? "not-allowed" : "pointer",
               }}
             >
-              {isApplyingChange ? "Applying..." : "Apply this change"}
+              {isApplied
+                ? "Applied"
+                : isApplyingChange
+                  ? "Applying..."
+                  : "Apply this change"}
             </div>
           </div>
         </div>
@@ -97,19 +107,19 @@ export default React.memo(function MessageRowItem({
       message.source === "USER"
         ? MessageStyle.UserMessage
         : MessageStyle.AssistantMessage,
-    [message.source],
+    [message.source]
   );
 
   const suggestedChanges = useMemo(
     () =>
-      message.suggestedChanges?.map((change) => (
+      message.suggestedChanges?.map(change => (
         <SuggestedChangeItem
           key={change.id}
           change={change}
           quillRef={quillRef}
         />
       )),
-    [message.suggestedChanges, quillRef],
+    [message.suggestedChanges, quillRef]
   );
 
   return (

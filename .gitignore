@@ -25,6 +25,8 @@ release/
 *.tsbuildinfo
 
 # --- Environment & Secrets ---
+.env.example
+.env.production
 .env
 
 # --- Cache & lockfiles ---
@@ -35,5 +37,5 @@ release/
 # --- Electron-vite temporary config files ---
 electron.vite.config.*.mjs
 
-
+*.yarn/*
 
