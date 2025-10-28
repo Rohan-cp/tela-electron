@@ -7,6 +7,22 @@ import { parse as parseUrl } from "url";
 import * as path from "path";
 import * as fs from "fs";
 
+// Load environment variables based on NODE_ENV
+// Check for production flag in command line arguments or environment
+const isProduction =
+  process.argv.includes("--prod") ||
+  process.env.NODE_ENV === "production" ||
+  process.env.ELECTRON_IS_DEV === "false";
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("isProduction:", isProduction);
+const envFile = isProduction ? ".env.production" : ".env";
+console.log("Loading env file:", envFile);
+require("dotenv").config({ path: envFile });
+
+// Environment variables
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3001";
+console.log("API_BASE_URL:", API_BASE_URL);
+
 // Track all windows globally
 let mainWindow: BrowserWindow | null = null;
 let authWindows: BrowserWindow[] = [];
@@ -44,7 +60,7 @@ function createMainWindow(): BrowserWindow {
     mainWindow?.show();
   });
 
-  mainWindow.webContents.setWindowOpenHandler((details) => {
+  mainWindow.webContents.setWindowOpenHandler(details => {
     shell.openExternal(details.url);
     return { action: "deny" };
   });
@@ -93,7 +109,7 @@ ipcMain.on("create-document-triggered", (_, textVal) => {
     .then(({ filePath }) => {
       if (!filePath) return;
 
-      fs.writeFile(filePath, textVal?.toString() ?? "alternate", (err) => {
+      fs.writeFile(filePath, textVal?.toString() ?? "alternate", err => {
         if (err) {
           console.error("error", err);
           return;
@@ -102,7 +118,7 @@ ipcMain.on("create-document-triggered", (_, textVal) => {
         }
       });
     })
-    .catch((err) => {
+    .catch(err => {
       console.error("Error in open dialog:", err);
     });
 });
@@ -110,7 +126,7 @@ ipcMain.on("create-document-triggered", (_, textVal) => {
 ipcMain.on("save-document-triggered", (_, { filePath, textVal }) => {
   if (!mainWindow) return;
 
-  fs.writeFile(filePath, textVal?.toString() ?? "", (err) => {
+  fs.writeFile(filePath, textVal?.toString() ?? "", err => {
     if (err) {
       console.error("Error saving file:", err);
       return;
@@ -142,7 +158,7 @@ ipcMain.on("open-document-triggered", () => {
         }
       });
     })
-    .catch((err) => {
+    .catch(err => {
       console.error("Error in open dialog:", err);
     });
 });
@@ -210,7 +226,7 @@ function createAuthCallbackServer(): Server {
             if (global.pendingAuthData) {
               mainWindow?.webContents.send(
                 "auth-success",
-                global.pendingAuthData,
+                global.pendingAuthData
               );
               global.pendingAuthData = null;
             }
@@ -267,7 +283,7 @@ function setupIpcHandlers(): void {
   ipcMain.on("initiate-google-auth", () => {
     try {
       createAuthCallbackServer();
-      shell.openExternal("http://localhost:3001/api/auth/google");
+      shell.openExternal(`${API_BASE_URL}/api/auth/google`);
     } catch (err) {
       console.error("Error initiating Google auth:", err);
       if (mainWindow && !mainWindow.isDestroyed()) {
@@ -296,7 +312,7 @@ function cleanupAllResources(): void {
     }
   }
 
-  authWindows.forEach((win) => {
+  authWindows.forEach(win => {
     if (win && !win.isDestroyed()) {
       try {
         win.close();
@@ -349,7 +365,7 @@ process.on("SIGTERM", () => {
   app.quit();
 });
 
-process.on("uncaughtException", (error) => {
+process.on("uncaughtException", error => {
   console.error("Uncaught exception:", error);
   cleanupAllResources();
   app.quit();

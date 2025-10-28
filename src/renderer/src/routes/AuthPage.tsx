@@ -7,7 +7,6 @@ import authBackground from "../assets/auth-bg.png";
 
 export default function AuthPage(): JSX.Element {
   const authenticated = false;
-  const user = null;
   const ready = true;
   const disableLogin = !ready || (ready && authenticated);
   const { setIsUserAuthenticated, setUserEmail, setUserToken } =
@@ -24,17 +23,17 @@ export default function AuthPage(): JSX.Element {
   const handleAuthSuccess = useCallback(
     (
       _event: Electron.IpcRendererEvent,
-      data: { email: string; token?: string },
+      data: { email: string; token?: string }
     ) => {
       setUserEmail(data.email);
       setUserToken(data.token || null);
       setIsUserAuthenticated(true);
 
       setTimeout(() => {
-        window.location.href = "/editor";
+        window.location.href = "#/editor";
       }, 500);
     },
-    [setUserEmail, setUserToken, setIsUserAuthenticated],
+    [setUserEmail, setUserToken, setIsUserAuthenticated]
   );
 
   useEffect(() => {
@@ -53,22 +52,8 @@ export default function AuthPage(): JSX.Element {
         window.api.initiateGoogleAuth();
       }
     },
-    [disableLogin],
+    [disableLogin]
   );
-
-  useEffect(() => {
-    if (
-      authenticated &&
-      user &&
-      typeof user === "object" &&
-      "email" in user &&
-      typeof user.email === "string"
-    ) {
-      setUserEmail(user.email);
-      setIsUserAuthenticated(true);
-      window.location.href = "/";
-    }
-  }, [authenticated, user, setUserEmail, setIsUserAuthenticated]);
 
   useEffect(() => {
     window.api.checkAuthStatus();

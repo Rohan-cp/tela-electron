@@ -1,97 +1,106 @@
 .suggestion-title {
-    margin-bottom: 10px;
-    letter-spacing: -0.01em;
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
 }
 
 .apply-change-btn {
-    background-color: var(--tela-text-primary);
-    cursor: pointer;
-    color: var(--tela-selection-bg);
-    font-size: 12px;
-    border-radius: var(--tela-border-radius-medium);
-    width: fit-content;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-right: 16px;
-    padding-left: 16px;
-    font-family: NM-Medium;
-    letter-spacing: -0.01em;
+  background-color: var(--tela-text-primary);
+  cursor: pointer;
+  color: var(--tela-selection-bg);
+  font-size: 12px;
+  border-radius: var(--tela-border-radius-medium);
+  width: fit-content;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 16px;
+  padding-left: 16px;
+  font-family: NM-Medium;
+  letter-spacing: -0.01em;
 }
 
 .apply-change-btn:hover {
-    background-color: var(--tela-bg-hover);
+  background-color: var(--tela-bg-hover);
+}
+
+.apply-change-btn.applied {
+  background-color: var(--add-indicator);
+  color: white;
+}
+
+.apply-change-btn.applied:hover {
+  background-color: var(--add-indicator);
 }
 
 .suggestion-diff-container {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--tela-bg-quaternary);
-    padding-top: 14px;
-    padding-bottom: 14px;
-    padding-right: 14px;
-    padding-left: 14px;
-    gap: 12px;
-    border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--tela-bg-quaternary);
+  padding-top: 14px;
+  padding-bottom: 14px;
+  padding-right: 14px;
+  padding-left: 14px;
+  gap: 12px;
+  border-radius: 6px;
 }
 
 .suggest-remove-text-container,
 .suggest-add-text-container {
-    display: flex;
-    border-width: 0.5px;
-    border-style: solid;
+  display: flex;
+  border-width: 0.5px;
+  border-style: solid;
 }
 
 .suggest-remove-text,
 .suggest-add-text {
-    font-size: 13px;
-    padding: 4px;
-    overflow: hidden;
-    padding-left: 10px;
-    padding-right: 10px;
-    letter-spacing: -0.01em;
+  font-size: 13px;
+  padding: 4px;
+  overflow: hidden;
+  padding-left: 10px;
+  padding-right: 10px;
+  letter-spacing: -0.01em;
 }
 
 .remove-red-left-border,
 .add-green-left-border {
-    height: 30px;
-    width: 1px;
+  height: 30px;
+  width: 1px;
 }
 
 .remove-red-left-border {
-    background-color: var(--remove-indicator);
+  background-color: var(--remove-indicator);
 }
 
 .add-green-left-border {
-    background-color: var(--add-indicator);
+  background-color: var(--add-indicator);
 }
 
 .shimmer-message {
-    position: relative;
-    overflow: hidden;
+  position: relative;
+  overflow: hidden;
 }
 
 .shimmer-text {
-    color: var(--tela-chat-assistant-text);
-    font-family: SfProMedium;
-    letter-spacing: -0.01em;
-    animation: shimmer-wave 2s ease-in-out infinite;
-    background: linear-gradient(
-        90deg,
-        var(--tela-chat-assistant-text) 0%,
-        rgba(255, 255, 255, 0.4) 50%,
-        var(--tela-chat-assistant-text) 100%
-    );
-    background-size: 200% 100%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  color: var(--tela-chat-assistant-text);
+  font-family: SfProMedium;
+  letter-spacing: -0.01em;
+  animation: shimmer-wave 2s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--tela-chat-assistant-text) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    var(--tela-chat-assistant-text) 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 @keyframes shimmer-wave {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }

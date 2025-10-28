@@ -1,7 +1,7 @@
 import "./assets/main.css";
 
 import React from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import ReactDOM from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import Editor from "./routes/Editor";
@@ -10,7 +10,7 @@ import AuthPage from "./routes/AuthPage";
 import AuthProvider from "./contexts/AuthContext";
 import { queryClient } from "./lib/queryClient";
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: "/editor",
     element: <Editor />,
@@ -35,5 +35,5 @@ ReactDOM.createRoot(rootElement).render(
         </ModalProvider>
       </AuthProvider>
     </QueryClientProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );

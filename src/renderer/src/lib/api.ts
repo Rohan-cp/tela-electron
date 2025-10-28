@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://localhost:3001";
+const API_BASE_URL =
+  (import.meta as any).env?.VITE_API_BASE_URL || "http://localhost:3001";
 
 export interface ApiError {
   message: string;
@@ -20,7 +21,7 @@ export class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {},
+    options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
 
@@ -46,7 +47,7 @@ export class ApiClient {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.message || `HTTP error! status: ${response.status}`,
+          errorData.message || `HTTP error! status: ${response.status}`
         );
       }
 
@@ -66,7 +67,7 @@ export class ApiClient {
   async post<T>(
     endpoint: string,
     data?: unknown,
-    options?: RequestInit,
+    options?: RequestInit
   ): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
@@ -78,7 +79,7 @@ export class ApiClient {
   async put<T>(
     endpoint: string,
     data?: unknown,
-    options?: RequestInit,
+    options?: RequestInit
   ): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
@@ -92,7 +93,7 @@ export class ApiClient {
   }
 
   async createConversation(
-    data: CreateConversationRequest,
+    data: CreateConversationRequest
   ): Promise<Conversation> {
     return this.post<Conversation>(`${API_ENDPOINTS.CHAT}/conversations`, data);
   }
@@ -103,31 +104,31 @@ export class ApiClient {
 
   async getConversation(conversationId: string): Promise<Conversation> {
     return this.get<Conversation>(
-      `${API_ENDPOINTS.CHAT}/conversations/${conversationId}`,
+      `${API_ENDPOINTS.CHAT}/conversations/${conversationId}`
     );
   }
 
   async sendMessage(
     conversationId: string,
-    data: SendMessageRequest,
+    data: SendMessageRequest
   ): Promise<SendMessageResponse> {
     return this.post<SendMessageResponse>(
       `${API_ENDPOINTS.CHAT}/conversations/${conversationId}/messages`,
-      data,
+      data
     );
   }
 
   async applyChange(changeId: string): Promise<SuggestedChange> {
     return this.post<SuggestedChange>(
-      `${API_ENDPOINTS.CHAT}/changes/${changeId}/apply`,
+      `${API_ENDPOINTS.CHAT}/changes/${changeId}/apply`
     );
   }
 
   async deleteConversation(
-    conversationId: string,
+    conversationId: string
   ): Promise<{ success: boolean }> {
     return this.delete<{ success: boolean }>(
-      `${API_ENDPOINTS.CHAT}/conversations/${conversationId}`,
+      `${API_ENDPOINTS.CHAT}/conversations/${conversationId}`
     );
   }
 }

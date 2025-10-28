@@ -11,12 +11,13 @@ import ShimmerMessage from "../ShimmerMessage";
 import UpArrowIcon from "../../assets/UpArrowIcon.svg";
 import { useChat } from "../../hooks/useChat";
 import { Message } from "../../lib/api";
+import { QuillEditor } from "../../hooks/editorTypes";
 
 type ChatAssistantProps = {
   isOpen: boolean;
   onClose: () => void;
   selectedText: string | null;
-  quillRef: React.RefObject<{ getEditor: () => unknown }>;
+  quillRef: React.RefObject<{ getEditor: () => QuillEditor | null }>;
 };
 
 const ChatAssistant = ({
@@ -41,29 +42,29 @@ const ChatAssistant = ({
 
   const apiMessages = useMemo(
     () => currentConversation?.messages || [],
-    [currentConversation?.messages],
+    [currentConversation?.messages]
   );
 
   const optimisticApiMessages: Message[] = useMemo(
     () =>
-      Array.from(optimisticMessages.values()).map((optimisticMsg) => ({
+      Array.from(optimisticMessages.values()).map(optimisticMsg => ({
         id: optimisticMsg.id,
         conversationId: currentConversation?.id || "",
         source: "USER" as const,
         content: optimisticMsg.content,
         createdAt: new Date(optimisticMsg.timestamp).toISOString(),
       })),
-    [optimisticMessages, currentConversation?.id],
+    [optimisticMessages, currentConversation?.id]
   );
 
   const allMessages = useMemo(
     () => [...apiMessages, ...optimisticApiMessages],
-    [apiMessages, optimisticApiMessages],
+    [apiMessages, optimisticApiMessages]
   );
 
   const shouldShowShimmer = useMemo(
     () => isSendingMessage && optimisticMessages.size > 0,
-    [isSendingMessage, optimisticMessages.size],
+    [isSendingMessage, optimisticMessages.size]
   );
 
   useEffect(() => {
@@ -112,7 +113,7 @@ const ChatAssistant = ({
       await sendMessage(
         messageContent,
         selectedText || undefined,
-        conversationId,
+        conversationId
       );
     } catch {
       // Error handling could be improved here
@@ -133,7 +134,7 @@ const ChatAssistant = ({
         handleSubmit();
       }
     },
-    [handleSubmit],
+    [handleSubmit]
   );
 
   const handleNewChat = useCallback(async (): Promise<void> => {
@@ -153,7 +154,7 @@ const ChatAssistant = ({
       e.stopPropagation();
       setInputValue(e.target.value);
     },
-    [],
+    []
   );
 
   const handleInputContainerClick = useCallback((e: React.MouseEvent) => {
@@ -230,7 +231,7 @@ const ChatAssistant = ({
       <div className="chat-assistant-messages">
         {allMessages.length > 0 ? (
           <>
-            {allMessages.map((message) => (
+            {allMessages.map(message => (
               <MessageRowItem
                 key={message.id}
                 message={message}

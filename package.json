@@ -14,13 +14,21 @@
     "typecheck": "yarn typecheck:node && yarn typecheck:web",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
+    "dev:prod": "cross-env NODE_ENV=production ELECTRON_IS_DEV=false electron-vite dev",
     "build": "yarn typecheck && electron-vite build",
+    "build:prod": "yarn typecheck && cross-env NODE_ENV=production electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "yarn build && electron-builder --dir",
+    "build:unpack:prod": "yarn build:prod && electron-builder --dir",
     "build:win": "yarn build && electron-builder --win",
+    "build:win:prod": "yarn build:prod && electron-builder --win",
     "build:mac": "yarn build && electron-builder --mac --arm64",
+    "build:mac:prod": "yarn build:prod && electron-builder --mac --arm64",
     "build:mac:universal": "yarn build && electron-builder --mac --x64 --arm64",
-    "build:linux": "yarn build && electron-builder --linux"
+    "build:mac:universal:prod": "yarn build:prod && electron-builder --mac --x64 --arm64",
+    "build:linux": "yarn build && electron-builder --linux",
+    "build:linux:prod": "yarn build:prod && electron-builder --linux",
+    "setup:env": "node setup-env.js"
   },
   "dependencies": {
     "@electron-toolkit/preload": "3.0.1",
@@ -28,6 +36,7 @@
     "@solana/web3.js": "1.95.3",
     "@tanstack/react-query": "5.90.2",
     "@tanstack/react-query-devtools": "5.90.2",
+    "dotenv": "^17.2.3",
     "quill": "2.0.2",
     "react-icons": "5.5.0",
     "react-quill": "2.0.0",
@@ -43,6 +52,7 @@
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
     "@vitejs/plugin-react": "4.3.1",
+    "cross-env": "^10.1.0",
     "electron": "31.0.2",
     "electron-builder": "24.13.3",
     "electron-builder-squirrel-windows": "24.13.3",
@@ -61,7 +71,9 @@
     "mac": {
       "target": {
         "target": "dmg",
-        "arch": ["arm64"]
+        "arch": [
+          "arm64"
+        ]
       },
       "category": "public.app-category.utilities",
       "icon": "build/icon.icns"
