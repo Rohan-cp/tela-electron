@@ -25,7 +25,6 @@ export function useAppUpdate() {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  // Check for updates
   const checkForUpdates = useCallback(async () => {
     setIsChecking(true);
     setError(null);
@@ -34,7 +33,6 @@ export function useAppUpdate() {
       if (result.error) {
         setError(result.error);
       }
-      // The status will be updated via event listeners
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to check for updates"
@@ -44,7 +42,6 @@ export function useAppUpdate() {
     }
   }, []);
 
-  // Download update
   const downloadUpdate = useCallback(async () => {
     setIsDownloading(true);
     setError(null);
@@ -62,7 +59,6 @@ export function useAppUpdate() {
     }
   }, []);
 
-  // Install update and restart
   const installUpdateAndRestart = useCallback(async () => {
     try {
       const result = await window.api.installUpdateAndRestart();
@@ -74,7 +70,6 @@ export function useAppUpdate() {
     }
   }, []);
 
-  // Get current update status
   const refreshUpdateStatus = useCallback(async () => {
     try {
       const status = await window.api.getUpdateStatus();
@@ -85,12 +80,9 @@ export function useAppUpdate() {
     }
   }, []);
 
-  // Set up event listeners
   useEffect(() => {
-    // Refresh status on mount
     refreshUpdateStatus();
 
-    // Set up event listeners
     const handleUpdateChecking = () => {
       setIsChecking(true);
       setError(null);

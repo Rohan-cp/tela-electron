@@ -14,7 +14,7 @@ import { QuillEditorRef } from "./editorTypes";
 export interface UseSelectionHandlingProps {
   quillRef: React.RefObject<QuillEditorRef>;
   setSelectedStats: (
-    stats: { charCount: number; wordCount: number; lineCount: number } | null,
+    stats: { charCount: number; wordCount: number; lineCount: number } | null
   ) => void;
 }
 
@@ -28,16 +28,16 @@ export function useSelectionHandling({
   setToolbarPosition: (position: ToolbarPosition) => void;
   transformSelection: { index: number; length: number } | null;
   setTransformSelection: (
-    selection: { index: number; length: number } | null,
+    selection: { index: number; length: number } | null
   ) => void;
   handleSelectionChange: (
     range: { index: number; length: number } | null,
     source: unknown,
-    editor: { getText: () => string; getHTML: () => string },
+    editor: { getText: () => string; getHTML: () => string }
   ) => void;
   handleUpdatingSelectedStats: (
     range: { index: number; length: number },
-    editor: { getText: () => string },
+    editor: { getText: () => string }
   ) => void;
   scrollToHeaderHandler: () => void;
 } {
@@ -61,7 +61,7 @@ export function useSelectionHandling({
   const handleUpdatingSelectedStats = useCallback(
     (
       range: { index: number; length: number },
-      editor: { getText: () => string },
+      editor: { getText: () => string }
     ) => {
       if (range) {
         const { index, length } = range;
@@ -81,29 +81,27 @@ export function useSelectionHandling({
         }
       }
     },
-    [setSelectedStats],
+    [setSelectedStats]
   );
 
   const handleSelectionChange = useCallback(
     (
       range: { index: number; length: number } | null,
       _source: unknown,
-      editor: { getText: () => string; getHTML: () => string },
+      editor: { getText: () => string; getHTML: () => string }
     ) => {
       if (range) {
         const { index, length } = range;
 
-        // Update the active headers based on cursor position
         if (index !== undefined) {
           const fileText = editor.getText();
           const content = editor.getHTML();
           const headersExtracted = extractHeaders(content ?? "");
           const headerLines = createHeaderLines(
             fileText ?? "",
-            headersExtracted,
+            headersExtracted
           );
 
-          // Find the nearest headers before the cursor position
           let nearestH1: Selection | null = null;
           let nearestH2: Selection | null = null;
           let nearestH1Distance = Infinity;
@@ -112,7 +110,6 @@ export function useSelectionHandling({
           let currentH2: Selection | null = null;
 
           if (headerLines) {
-            // First check if we're AT a header position
             for (const header of headerLines) {
               const headerIndex = header.index;
 
@@ -134,7 +131,6 @@ export function useSelectionHandling({
               }
             }
 
-            // If we're not at a header, find the nearest H1 and H2 headers before the cursor
             if (!currentH1 && !currentH2) {
               for (const header of headerLines) {
                 const headerIndex = header.index;
@@ -163,8 +159,6 @@ export function useSelectionHandling({
             }
           }
 
-          // Update the context - prioritize current position, then nearest headers
-          // Prioritize H2 over H1 for parentHeaderActive
           if (currentH2) {
             setParentHeaderActive(null);
             setParentHeader2Active(currentH2);
@@ -187,9 +181,8 @@ export function useSelectionHandling({
           const bounds = quillRef.current?.getEditor().getBounds(index, length);
 
           if (bounds) {
-            // Position the toolbar below the selection
             setToolbarPosition({
-              top: bounds.bottom + 10, // 10px below the selection
+              top: bounds.bottom + 10,
               left: bounds.left,
             });
 
@@ -210,7 +203,7 @@ export function useSelectionHandling({
       setParentHeader2Active,
       setSelectedStats,
       quillRef,
-    ],
+    ]
   );
 
   const scrollToHeaderHandler = useCallback(() => {
@@ -222,7 +215,7 @@ export function useSelectionHandling({
 
       const bounds = quill.getBounds(
         scrollToHeader.index,
-        scrollToHeader.length,
+        scrollToHeader.length
       );
 
       if (bounds) {
