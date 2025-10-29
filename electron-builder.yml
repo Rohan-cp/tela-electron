@@ -2,6 +2,7 @@ appId: com.electron.app
 productName: tela
 directories:
   buildResources: build
+beforeBuild: ./scripts/before-build.js
 files:
   - "!**/.vscode/*"
   - "!src/*"
@@ -40,7 +41,11 @@ appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
-  provider: generic
-  url: https://example.com/auto-updates
+  provider: github
+  owner: ${GITHUB_OWNER:-your-username}
+  repo: ${GITHUB_REPO:-tela-electron}
+  # GitHub token will be read from GITHUB_TOKEN environment variable
+  # You can create a token at: https://github.com/settings/tokens
+  # Required permissions: repo (for private repos) or public_repo (for public repos)
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
