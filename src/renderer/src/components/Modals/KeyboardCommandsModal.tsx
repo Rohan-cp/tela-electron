@@ -21,6 +21,11 @@ const keyboardCommands = [
     shortcut: "CMD + 2",
     description: "Select a line and turn into a header 2",
   },
+  {
+    shortcut: "Tab. Tab",
+    description:
+      "Hit Tab in the middle of a sentence to see a suggested autocomplete. Hit Tab again to accept the suggestion",
+  },
 ];
 
 export default function KeyboardCommandsModal({ onClose }: Props): JSX.Element {

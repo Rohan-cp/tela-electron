@@ -3,6 +3,7 @@ import { HStack, VStack } from "../Spacer/Stack";
 import { useCallback, useMemo, useState } from "react";
 import telaIcon from "../../assets/icon.png";
 import { useModalContext } from "@renderer/contexts/ModalContext";
+import { useAppUpdate } from "@renderer/hooks/useAppUpdate";
 
 type Props = {
   description?: string;
@@ -17,7 +18,16 @@ export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
     setIsFeedbackFormModalOpen,
     setIsKeyboardCommandsModalOpen,
   } = useModalContext();
-  const [isNewVersionAvailable] = useState(true);
+  const {
+    updateStatus,
+    isChecking,
+    isDownloading,
+    downloadProgress,
+    error,
+    checkForUpdates,
+    downloadUpdate,
+    installUpdateAndRestart,
+  } = useAppUpdate();
   const [userMode] = useState("editor");
 
   const handleOpenChangelogModal = useCallback((): void => {
@@ -31,6 +41,19 @@ export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
   const handleOpenKeyboardCommandsModal = useCallback((): void => {
     setIsKeyboardCommandsModalOpen(true);
   }, [setIsKeyboardCommandsModalOpen]);
+
+  const handleUpdateClick = useCallback(async (): Promise<void> => {
+    if (updateStatus.downloaded) {
+      // Update is downloaded, install and restart
+      await installUpdateAndRestart();
+    } else if (updateStatus.isAvailable) {
+      // Update is available but not downloaded, download it
+      await downloadUpdate();
+    } else {
+      // Check for updates
+      await checkForUpdates();
+    }
+  }, [updateStatus, installUpdateAndRestart, downloadUpdate, checkForUpdates]);
 
   const switchHref = useMemo((): string => {
     if (userMode === "editor") {
@@ -62,7 +85,7 @@ export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
         </div>
 
         <VStack>
-          <Text>Version: 1.0.0</Text>
+          <Text>Version: {updateStatus.version}</Text>
           <SmallText onClick={handleOpenChangelogModal}>changelog</SmallText>
         </VStack>
         <VStack
@@ -72,9 +95,41 @@ export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
           }}
           gap={8}
         >
-          {isNewVersionAvailable && (
-            <Bubble align="center" justify="center">
-              Restart and update Tela
+          {(updateStatus.isAvailable ||
+            updateStatus.downloaded ||
+            isChecking) && (
+            <Bubble
+              align="center"
+              justify="center"
+              onClick={handleUpdateClick}
+              style={{
+                cursor: "pointer",
+                opacity: isDownloading ? 0.7 : 1,
+              }}
+            >
+              {isChecking
+                ? "Checking for updates..."
+                : isDownloading
+                  ? `Downloading update... ${downloadProgress}%`
+                  : updateStatus.downloaded
+                    ? "Restart and update Tela"
+                    : updateStatus.isAvailable
+                      ? "Download update"
+                      : "Check for updates"}
+            </Bubble>
+          )}
+          {error && (
+            <Bubble
+              align="center"
+              justify="center"
+              style={{
+                backgroundColor: "#d32f2f",
+                fontSize: "11px",
+                paddingTop: "6px",
+                paddingBottom: "6px",
+              }}
+            >
+              {error}
             </Bubble>
           )}
 

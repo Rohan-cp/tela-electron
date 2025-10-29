@@ -78,6 +78,80 @@ const api = {
   maximizeWindow: (): void => {
     ipcRenderer.send("maximize-window");
   },
+  // Update-related APIs
+  checkForUpdates: (): Promise<{
+    available: boolean;
+    version?: string;
+    message?: string;
+    error?: string;
+  }> => {
+    return ipcRenderer.invoke("check-for-updates");
+  },
+  getUpdateStatus: (): Promise<{
+    version: string;
+    releaseDate: string;
+    isAvailable: boolean;
+    downloaded: boolean;
+    progress?: number;
+  }> => {
+    return ipcRenderer.invoke("get-update-status");
+  },
+  downloadUpdate: (): Promise<{
+    success: boolean;
+    message?: string;
+    error?: string;
+  }> => {
+    return ipcRenderer.invoke("download-update");
+  },
+  installUpdateAndRestart: (): Promise<{
+    success: boolean;
+    message?: string;
+  }> => {
+    return ipcRenderer.invoke("install-update-and-restart");
+  },
+  onUpdateChecking: (callback: (event: IpcRendererEvent) => void): void => {
+    ipcRenderer.on("update-checking", callback);
+  },
+  onUpdateAvailable: (
+    callback: (
+      event: IpcRendererEvent,
+      data: { version: string; releaseDate: string }
+    ) => void
+  ): void => {
+    ipcRenderer.on("update-available", callback);
+  },
+  onUpdateNotAvailable: (callback: (event: IpcRendererEvent) => void): void => {
+    ipcRenderer.on("update-not-available", callback);
+  },
+  onUpdateError: (
+    callback: (event: IpcRendererEvent, data: { message: string }) => void
+  ): void => {
+    ipcRenderer.on("update-error", callback);
+  },
+  onUpdateDownloadProgress: (
+    callback: (
+      event: IpcRendererEvent,
+      data: { percent: number; transferred: number; total: number }
+    ) => void
+  ): void => {
+    ipcRenderer.on("update-download-progress", callback);
+  },
+  onUpdateDownloaded: (
+    callback: (
+      event: IpcRendererEvent,
+      data: { version: string; releaseDate: string }
+    ) => void
+  ): void => {
+    ipcRenderer.on("update-downloaded", callback);
+  },
+  removeUpdateListeners: (): void => {
+    ipcRenderer.removeAllListeners("update-checking");
+    ipcRenderer.removeAllListeners("update-available");
+    ipcRenderer.removeAllListeners("update-not-available");
+    ipcRenderer.removeAllListeners("update-error");
+    ipcRenderer.removeAllListeners("update-download-progress");
+    ipcRenderer.removeAllListeners("update-downloaded");
+  },
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

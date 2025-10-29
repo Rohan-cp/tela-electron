@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import telaIcon from "../../assets/telaButtonIcon.png";
 import TelaTooltip from "./TelaTooltip";
 import styled from "styled-components";
@@ -7,13 +7,32 @@ import styled from "styled-components";
 // for beta, this should allow you update the app
 export default function TelaButton(): JSX.Element {
   const [showTooltip, setShowTooltip] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleToggleTooltip = (): void => {
     setShowTooltip(currVal => !currVal);
   };
 
+  useEffect(() => {
+    const handleDocumentMouseDown = (event: MouseEvent): void => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setShowTooltip(false);
+      }
+    };
+
+    if (showTooltip) {
+      document.addEventListener("mousedown", handleDocumentMouseDown);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleDocumentMouseDown);
+    };
+  }, [showTooltip]);
+
   return (
-    <div onClick={handleToggleTooltip}>
+    <div ref={containerRef}>
       <img
         style={{
           width: 38,
@@ -22,8 +41,11 @@ export default function TelaButton(): JSX.Element {
         }}
         alt="button"
         src={telaIcon}
+        onClick={handleToggleTooltip}
       />
-      <StyledTooltip visible={showTooltip} />
+      <div onClick={() => setShowTooltip(false)}>
+        <StyledTooltip visible={showTooltip} />
+      </div>
     </div>
   );
 }
@@ -36,4 +58,5 @@ const StyledTooltip = styled(TelaTooltip)<{ visible: boolean }>`
   right: 15px;
   top: 48px;
   z-index: 9999;
+  pointer-events: ${({ visible }) => (visible ? "auto" : "none")};
 `;

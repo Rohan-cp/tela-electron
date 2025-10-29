@@ -1,42 +1,60 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from "electron";
 import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
+import { autoUpdater } from "electron-updater";
 import icon from "../../resources/icon.svg?asset";
 import { createServer, Server } from "http";
 import { parse as parseUrl } from "url";
 import * as path from "path";
 import * as fs from "fs";
 
-// Load environment variables based on NODE_ENV
-// Check for production flag in command line arguments or environment
-const isProduction =
-  process.argv.includes("--prod") ||
-  process.env.NODE_ENV === "production" ||
-  process.env.ELECTRON_IS_DEV === "false";
+// Environment variables - sourced from build-time defines (see electron.vite.config.ts)
+// NOTE: Previous hardcoded production values kept here for packaging fallback when
+// env injection fails during production builds (via electron-builder, etc.).
+// To use the fallback, replace the two consts below with these lines:
+// const API_BASE_URL = "https://tela-server-production.up.railway.app";
+// const IS_PRODUCTION = true;
+const API_BASE_URL =
+  (process.env.API_BASE_URL as string) ||
+  (is.dev
+    ? "http://localhost:3001"
+    : "https://tela-server-production.up.railway.app");
 
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("isProduction:", isProduction);
+// Configure auto-updater for GitHub Releases
+// It will auto-detect repository from package.json
+// Make sure your package.json has the repository field set correctly
+autoUpdater.setFeedURL({
+  provider: "github",
+  // Repository will be auto-detected from package.json
+  // Or set explicitly:
+  // owner: process.env.GITHUB_OWNER || "your-username",
+  // repo: process.env.GITHUB_REPO || "tela-electron",
+});
 
-// Try to load .env files if they exist, but don't fail if they don't
-try {
-  const envFile = isProduction ? ".env.production" : ".env";
-  console.log("Attempting to load env file:", envFile);
-  require("dotenv").config({ path: envFile });
-} catch (error) {
-  console.log("No .env file found, using hardcoded values");
-}
-
-// Environment variables with production fallbacks
-const API_BASE_URL = isProduction
-  ? process.env.API_BASE_URL || "https://tela-server-production.up.railway.app"
-  : process.env.API_BASE_URL || "http://localhost:3001";
-
-console.log("API_BASE_URL:", API_BASE_URL);
+// Disable auto-download, we'll handle it manually
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
 
 // Track all windows globally
 let mainWindow: BrowserWindow | null = null;
 let authWindows: BrowserWindow[] = [];
 let authServer: Server | null = null;
+
+// Update state
+interface UpdateInfo {
+  version: string;
+  releaseDate: string;
+  isAvailable: boolean;
+  downloaded: boolean;
+  progress?: number;
+}
+
+let updateInfo: UpdateInfo = {
+  version: app.getVersion(),
+  releaseDate: "",
+  isAvailable: false,
+  downloaded: false,
+};
 
 interface AuthData {
   email: string;
@@ -65,7 +83,9 @@ function createMainWindow(): BrowserWindow {
   });
 
   // Only open dev tools in development
-  mainWindow.webContents.openDevTools();
+  if (is.dev) {
+    mainWindow.webContents.openDevTools();
+  }
 
   mainWindow.on("ready-to-show", () => {
     mainWindow?.show();
@@ -280,7 +300,7 @@ function createAuthCallbackServer(): Server {
   server.on("listening", () => {
     const address = server.address();
     if (address && typeof address === "object" && "port" in address) {
-      console.log(`Auth server listening on port ${address.port}`);
+      // Avoid logging in production for cleaner output
     }
   });
 
@@ -288,6 +308,85 @@ function createAuthCallbackServer(): Server {
 
   authServer = server;
   return server;
+}
+
+function setupAutoUpdater(): void {
+  // Only check for updates in production
+  if (!is.dev) {
+    // Check for updates immediately after app is ready
+    setTimeout(() => {
+      autoUpdater.checkForUpdates().catch(err => {
+        console.error("Error checking for updates:", err);
+      });
+    }, 3000);
+
+    // Check for updates every hour
+    setInterval(() => {
+      autoUpdater.checkForUpdates().catch(err => {
+        console.error("Error checking for updates:", err);
+      });
+    }, 3600000); // 1 hour
+  }
+
+  autoUpdater.on("checking-for-update", () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("update-checking");
+    }
+  });
+
+  autoUpdater.on("update-available", info => {
+    updateInfo = {
+      version: info.version,
+      releaseDate: info.releaseDate || "",
+      isAvailable: true,
+      downloaded: false,
+    };
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("update-available", {
+        version: info.version,
+        releaseDate: info.releaseDate,
+      });
+    }
+  });
+
+  autoUpdater.on("update-not-available", () => {
+    updateInfo.isAvailable = false;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("update-not-available");
+    }
+  });
+
+  autoUpdater.on("error", err => {
+    console.error("Error in auto-updater:", err);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("update-error", {
+        message: err.message,
+      });
+    }
+  });
+
+  autoUpdater.on("download-progress", progressObj => {
+    const percent = Math.round(progressObj.percent);
+    updateInfo.progress = percent;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("update-download-progress", {
+        percent,
+        transferred: progressObj.transferred,
+        total: progressObj.total,
+      });
+    }
+  });
+
+  autoUpdater.on("update-downloaded", info => {
+    updateInfo.downloaded = true;
+    updateInfo.progress = 100;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("update-downloaded", {
+        version: info.version,
+        releaseDate: info.releaseDate,
+      });
+    }
+  });
 }
 
 function setupIpcHandlers(): void {
@@ -314,10 +413,54 @@ function setupIpcHandlers(): void {
 
   ipcMain.on("maximize-window", () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
-      console.log("Maximizing window...");
       mainWindow.show();
       mainWindow.maximize();
     }
+  });
+
+  // Update-related IPC handlers
+  ipcMain.handle("check-for-updates", async () => {
+    try {
+      if (is.dev) {
+        return { available: false, message: "Updates disabled in development" };
+      }
+      const result = await autoUpdater.checkForUpdates();
+      return {
+        available: result?.updateInfo ? true : false,
+        version: result?.updateInfo?.version,
+      };
+    } catch (error) {
+      console.error("Error checking for updates:", error);
+      return { available: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-update-status", () => {
+    return updateInfo;
+  });
+
+  ipcMain.handle("download-update", async () => {
+    try {
+      if (is.dev) {
+        return { success: false, message: "Updates disabled in development" };
+      }
+      await autoUpdater.downloadUpdate();
+      return { success: true };
+    } catch (error) {
+      console.error("Error downloading update:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("install-update-and-restart", () => {
+    if (is.dev) {
+      return { success: false, message: "Updates disabled in development" };
+    }
+    if (updateInfo.downloaded) {
+      autoUpdater.quitAndInstall(false, true);
+      return { success: true };
+    }
+    return { success: false, message: "Update not downloaded yet" };
   });
 }
 
@@ -355,6 +498,7 @@ function cleanupAllResources(): void {
 app.on("ready", () => {
   mainWindow = createMainWindow();
   setupIpcHandlers();
+  setupAutoUpdater();
 });
 
 app.on("window-all-closed", () => {

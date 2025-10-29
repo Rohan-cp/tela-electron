@@ -5,6 +5,10 @@
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/${GITHUB_OWNER:-your-username}/${GITHUB_REPO:-tela-electron}.git"
+  },
   "packageManager": "yarn@4.0.0",
   "scripts": {
     "format": "prettier --write .",
@@ -15,8 +19,9 @@
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "dev:prod": "cross-env NODE_ENV=production ELECTRON_IS_DEV=false electron-vite dev",
-    "build": "yarn typecheck && electron-vite build",
+    "build": "yarn typecheck && cross-env NODE_ENV=production electron-vite build",
     "build:prod": "yarn typecheck && cross-env NODE_ENV=production electron-vite build",
+    "prebuild": "yarn build:prod",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "yarn build && electron-builder --dir",
     "build:unpack:prod": "yarn build:prod && electron-builder --dir",
@@ -28,6 +33,10 @@
     "build:mac:universal:prod": "yarn build:prod && electron-builder --mac --x64 --arm64",
     "build:linux": "yarn build && electron-builder --linux",
     "build:linux:prod": "yarn build:prod && electron-builder --linux",
+    "publish:mac": "yarn build:prod && electron-builder --mac --arm64 --publish always",
+    "publish:mac:universal": "yarn build:prod && electron-builder --mac --x64 --arm64 --publish always",
+    "publish:win": "yarn build:prod && electron-builder --win --publish always",
+    "publish:linux": "yarn build:prod && electron-builder --linux --publish always",
     "setup:env": "node setup-env.js"
   },
   "dependencies": {
@@ -37,6 +46,7 @@
     "@tanstack/react-query": "5.90.2",
     "@tanstack/react-query-devtools": "5.90.2",
     "dotenv": "^17.2.3",
+    "electron-updater": "6.6.2",
     "quill": "2.0.2",
     "react-icons": "5.5.0",
     "react-quill": "2.0.0",
@@ -68,6 +78,7 @@
   "build": {
     "appId": "com.tela.app",
     "productName": "Tela",
+    "beforeBuild": "./scripts/before-build.js",
     "mac": {
       "target": {
         "target": "dmg",
@@ -93,6 +104,11 @@
     "directories": {
       "output": "dist",
       "buildResources": "build"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Rohan-cp",
+      "repo": "tela-electron"
     }
   }
 }
