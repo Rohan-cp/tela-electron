@@ -12,23 +12,22 @@ import * as fs from "fs";
 // NOTE: Previous hardcoded production values kept here for packaging fallback when
 // env injection fails during production builds (via electron-builder, etc.).
 // To use the fallback, replace the two consts below with these lines:
-// const API_BASE_URL = "https://tela-server-production.up.railway.app";
-// const IS_PRODUCTION = true;
+const API_BASE_URL = "https://tela-server-production.up.railway.app";
+
+/*
 const API_BASE_URL =
   (process.env.API_BASE_URL as string) ||
   (is.dev
     ? "http://localhost:3001"
     : "https://tela-server-production.up.railway.app");
 
+*/
+
 // Configure auto-updater for GitHub Releases
 // It will auto-detect repository from package.json
 // Make sure your package.json has the repository field set correctly
 autoUpdater.setFeedURL({
   provider: "github",
-  // Repository will be auto-detected from package.json
-  // Or set explicitly:
-  // owner: process.env.GITHUB_OWNER || "your-username",
-  // repo: process.env.GITHUB_REPO || "tela-electron",
 });
 
 // Disable auto-download, we'll handle it manually
