@@ -63,4 +63,7 @@ $ yarn build:linux
 
 # rebuild for mac arm64
 $ yarn electron-builder --mac --arm64
+
+# publish for mac arm64
+$ yarn publish:mac
 ```
