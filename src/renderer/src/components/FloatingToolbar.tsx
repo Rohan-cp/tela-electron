@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./FloatingToolbar.css";
 import telaIcon from "../assets/telaButtonIcon.png";
 import arrowIcon from "../assets/arrow.png";
+import { QuillEditorRef } from "../hooks/editorTypes";
 
 export type ToolbarPosition = {
   top: number;
@@ -21,6 +22,8 @@ export type FloatingToolbarProps = {
   suggestedText: string;
   transformError: string | null;
   retryCount: number;
+  quillRef?: React.RefObject<QuillEditorRef>;
+  transformSelection?: { index: number; length: number } | null;
 };
 
 const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
@@ -34,8 +37,12 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   setIsInteractingWithToolbar,
   originalText,
   suggestedText,
+  quillRef,
+  transformSelection,
 }) => {
   const [userTransformPrompt, setUserTransformPrompt] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const highlightAppliedRef = useRef(false);
 
   useEffect(() => {
     if (!showToolbar || !isTransformSelected) {
@@ -43,15 +50,75 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     }
   }, [showToolbar, isTransformSelected]);
 
+  // Apply visual highlighting when transform bubble opens
+  useEffect(() => {
+    if (
+      showToolbar &&
+      isTransformSelected &&
+      quillRef?.current &&
+      transformSelection &&
+      !highlightAppliedRef.current
+    ) {
+      const quill = quillRef.current.getEditor();
+      if (quill) {
+        // Apply background highlight to the transform selection
+        quill.formatText(
+          transformSelection.index,
+          transformSelection.length,
+          { background: "rgba(252, 184, 39, 0.2)" }, // Semi-transparent accent color
+          "api"
+        );
+
+        // Clear the actual selection so input can be focused
+        quill.setSelection(0, 0, "silent");
+
+        highlightAppliedRef.current = true;
+      }
+    }
+  }, [showToolbar, isTransformSelected, quillRef, transformSelection]);
+
+  // Auto-focus input when transform bubble opens
+  useEffect(() => {
+    if (showToolbar && isTransformSelected && inputRef.current) {
+      // Small delay to ensure the element is properly rendered
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 10);
+    }
+  }, [showToolbar, isTransformSelected]);
+
+  // Clean up highlighting when transform bubble closes
+  useEffect(() => {
+    if (
+      (!showToolbar || !isTransformSelected) &&
+      highlightAppliedRef.current &&
+      quillRef?.current &&
+      transformSelection
+    ) {
+      const quill = quillRef.current.getEditor();
+      if (quill) {
+        // Remove the background highlight
+        quill.formatText(
+          transformSelection.index,
+          transformSelection.length,
+          { background: false },
+          "api"
+        );
+
+        highlightAppliedRef.current = false;
+      }
+    }
+  }, [showToolbar, isTransformSelected, quillRef, transformSelection]);
+
   const handleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ): void => {
     setUserTransformPrompt(event.target.value);
     handleChangePromptInput();
   };
 
   const handleKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement>,
+    event: React.KeyboardEvent<HTMLInputElement>
   ): void => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -126,7 +193,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           top: `${toolbarPosition.top}px`,
           left: `${toolbarPosition.left}px`,
         }}
-        onMouseDown={(e) => {
+        onMouseDown={e => {
           if (!(e.target instanceof HTMLInputElement)) {
             e.preventDefault();
           }
@@ -134,16 +201,19 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         }}
       >
         <input
+          ref={inputRef}
           className="input"
           type="text"
           value={userTransformPrompt}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             setIsInteractingWithToolbar(true);
           }}
-          onFocus={() => setIsInteractingWithToolbar(true)}
+          onFocus={() => {
+            setIsInteractingWithToolbar(true);
+          }}
           placeholder='Ex. "make it sound more interesting"'
           disabled={showLoader}
         />

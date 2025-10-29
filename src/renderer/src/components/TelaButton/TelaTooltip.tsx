@@ -12,8 +12,11 @@ type Props = {
 };
 
 export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
-  const { setIsChangelogModalOpen, setIsFeedbackFormModalOpen } =
-    useModalContext();
+  const {
+    setIsChangelogModalOpen,
+    setIsFeedbackFormModalOpen,
+    setIsKeyboardCommandsModalOpen,
+  } = useModalContext();
   const [isNewVersionAvailable] = useState(true);
   const [userMode] = useState("editor");
 
@@ -24,6 +27,10 @@ export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
   const handleOpenFeedbackModal = useCallback((): void => {
     setIsFeedbackFormModalOpen(true);
   }, [setIsFeedbackFormModalOpen]);
+
+  const handleOpenKeyboardCommandsModal = useCallback((): void => {
+    setIsKeyboardCommandsModalOpen(true);
+  }, [setIsKeyboardCommandsModalOpen]);
 
   const switchHref = useMemo((): string => {
     if (userMode === "editor") {
@@ -55,7 +62,7 @@ export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
         </div>
 
         <VStack>
-          <Text>Version: 0.0.1</Text>
+          <Text>Version: 1.0.0</Text>
           <SmallText onClick={handleOpenChangelogModal}>changelog</SmallText>
         </VStack>
         <VStack
@@ -66,14 +73,26 @@ export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
           gap={8}
         >
           {isNewVersionAvailable && (
-            <Bubble
-              onClick={handleOpenFeedbackModal}
-              align="center"
-              justify="center"
-            >
-              Share feedback
+            <Bubble align="center" justify="center">
+              Restart and update Tela
             </Bubble>
           )}
+
+          <Bubble
+            onClick={handleOpenFeedbackModal}
+            align="center"
+            justify="center"
+          >
+            Share feedback
+          </Bubble>
+
+          <Bubble
+            align="center"
+            justify="center"
+            onClick={handleOpenKeyboardCommandsModal}
+          >
+            Keyboard commands
+          </Bubble>
 
           <a
             style={{

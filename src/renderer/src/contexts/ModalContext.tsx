@@ -12,6 +12,8 @@ type ContextState = {
   setIsFeedbackFormModalOpen: (newState: boolean) => void;
   isChangelogModalOpen: boolean;
   setIsChangelogModalOpen: (newState: boolean) => void;
+  isKeyboardCommandsModalOpen: boolean;
+  setIsKeyboardCommandsModalOpen: (newState: boolean) => void;
 };
 
 const ModalContext = createContext<ContextState | undefined>(undefined);
@@ -31,6 +33,8 @@ const ModalProvider = memo(({ children }: Props) => {
     useState<boolean>(false);
   const [isChangelogModalOpen, setIsChangelogModalOpen] =
     useState<boolean>(false);
+  const [isKeyboardCommandsModalOpen, setIsKeyboardCommandsModalOpen] =
+    useState<boolean>(false);
 
   const value = useMemo(
     () => ({
@@ -38,13 +42,17 @@ const ModalProvider = memo(({ children }: Props) => {
       setIsFeedbackFormModalOpen: setIsFeedbackFormModalOpen,
       isChangelogModalOpen: isChangelogModalOpen,
       setIsChangelogModalOpen: setIsChangelogModalOpen,
+      isKeyboardCommandsModalOpen: isKeyboardCommandsModalOpen,
+      setIsKeyboardCommandsModalOpen: setIsKeyboardCommandsModalOpen,
     }),
     [
       isFeedbackFormModalOpen,
       setIsFeedbackFormModalOpen,
       isChangelogModalOpen,
       setIsChangelogModalOpen,
-    ],
+      isKeyboardCommandsModalOpen,
+      setIsKeyboardCommandsModalOpen,
+    ]
   );
 
   return (

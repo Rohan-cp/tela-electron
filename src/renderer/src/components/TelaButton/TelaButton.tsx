@@ -9,7 +9,7 @@ export default function TelaButton(): JSX.Element {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const handleToggleTooltip = (): void => {
-    setShowTooltip((currVal) => !currVal);
+    setShowTooltip(currVal => !currVal);
   };
 
   return (
@@ -35,5 +35,5 @@ const StyledTooltip = styled(TelaTooltip)<{ visible: boolean }>`
   padding: 16px;
   right: 15px;
   top: 48px;
-  z-index: 1;
+  z-index: 9999;
 `;

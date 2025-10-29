@@ -12,12 +12,12 @@ export interface QuillEditorProps {
     editor: {
       getText: () => string;
       getSelection?: () => { index: number; length: number } | null;
-    },
+    }
   ) => void;
   onChangeSelection: (
     range: { index: number; length: number } | null,
     source: unknown,
-    editor: { getText: () => string; getHTML: () => string },
+    editor: { getText: () => string; getHTML: () => string }
   ) => void;
 }
 
@@ -48,6 +48,7 @@ const formats = [
   "list",
   "bullet",
   "color",
+  "background",
   "link",
   "image",
 ];
