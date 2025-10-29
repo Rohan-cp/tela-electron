@@ -44,7 +44,8 @@
 }
 
 .ql-editor ::selection {
-  background-color: var(--tela-selection-bg);
+  background-color: #d8d8d8;
+  color: #212121;
 }
 
 .ql-editor .autocomplete-suggestion {
@@ -67,7 +68,8 @@
   gap: 8px;
 }
 
-#toolbar button, #toolbar select {
+#toolbar button,
+#toolbar select {
   display: flex;
   background-color: var(--tela-bg-quaternary);
   border: none;
@@ -77,7 +79,8 @@
   cursor: pointer;
 }
 
-#toolbar button:hover, #toolbar select:hover {
+#toolbar button:hover,
+#toolbar select:hover {
   background-color: var(--tela-bg-hover);
 }
 
@@ -89,7 +92,7 @@
 .ql-bubble .ql-tooltip {
   background-color: var(--tela-bg-secondary);
   border: 1px solid var(--tela-border-primary);
-  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   padding: 8px;
   border-radius: var(--tela-border-radius-small);
 }
@@ -114,7 +117,7 @@
 }
 
 .ql-bubble .ql-tooltip.ql-editing {
-  z-index: 1;  /* Keep the link editing tooltip visible */
+  z-index: 1; /* Keep the link editing tooltip visible */
 }
 
 .ql-bubble .ql-tooltip:not(.ql-editing) {
@@ -383,7 +386,7 @@
 }
 
 .chat-assistant-submit {
-  background-color: #D8D8D8; /* Keep as is - specific design color */
+  background-color: #d8d8d8; /* Keep as is - specific design color */
   color: var(--tela-selection-bg);
   width: 27px;
   height: 27px;
@@ -399,11 +402,11 @@
 }
 
 .chat-assistant-submit:not(:disabled)::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 34px;
   height: 34px;
-  border: 1.5px solid #D8D8D8; /* Keep as is - specific design color */
+  border: 1.5px solid #d8d8d8; /* Keep as is - specific design color */
   border-radius: 50%;
   top: 50%;
   left: 50%;

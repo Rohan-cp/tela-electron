@@ -11,7 +11,7 @@ interface WindowWithGlobals extends Window {
 // Custom APIs for renderer
 const api = {
   registerCreateDocumentClick: (
-    callback: (event: IpcRendererEvent) => void,
+    callback: (event: IpcRendererEvent) => void
   ): void => {
     ipcRenderer.on("create-document-click", callback);
   },
@@ -30,23 +30,23 @@ const api = {
   onFileOpened: (
     callback: (
       event: IpcRendererEvent,
-      data: { filePath: string; content: string },
-    ) => void,
+      data: { filePath: string; content: string }
+    ) => void
   ): void => {
     ipcRenderer.on("file-opened", callback);
   },
   onFileCreated: (
-    callback: (event: IpcRendererEvent, data: { filePath: string }) => void,
+    callback: (event: IpcRendererEvent, data: { filePath: string }) => void
   ): void => {
     ipcRenderer.on("file-created", callback);
   },
   removeFileOpenedListener: (
-    callback: (event: IpcRendererEvent, ...args: unknown[]) => void,
+    callback: (event: IpcRendererEvent, ...args: unknown[]) => void
   ): void => {
     ipcRenderer.removeListener("file-opened", callback);
   },
   removeFileCreatedListener: (
-    callback: (event: IpcRendererEvent, data: { filePath: string }) => void,
+    callback: (event: IpcRendererEvent, data: { filePath: string }) => void
   ): void => {
     ipcRenderer.removeListener("file-created", callback);
   },
@@ -59,21 +59,24 @@ const api = {
   onAuthSuccess: (
     callback: (
       event: IpcRendererEvent,
-      data: { email: string; token?: string },
-    ) => void,
+      data: { email: string; token?: string }
+    ) => void
   ): void => {
     ipcRenderer.on("auth-success", callback);
   },
   removeAuthSuccessListener: (
     callback: (
       event: IpcRendererEvent,
-      data: { email: string; token?: string },
-    ) => void,
+      data: { email: string; token?: string }
+    ) => void
   ): void => {
     ipcRenderer.removeListener("auth-success", callback);
   },
   checkAuthStatus: (): void => {
     ipcRenderer.send("check-auth-status");
+  },
+  maximizeWindow: (): void => {
+    ipcRenderer.send("maximize-window");
   },
 };
 

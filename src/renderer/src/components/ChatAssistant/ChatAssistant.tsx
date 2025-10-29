@@ -5,31 +5,89 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
+import { QuillEditorRef, QuillEditor } from "../../hooks/editorTypes";
 import chatBg from "../../assets/chat-bg.png";
 import MessageRowItem from "../MessageRowItem";
 import ShimmerMessage from "../ShimmerMessage";
 import UpArrowIcon from "../../assets/UpArrowIcon.svg";
 import { useChat } from "../../hooks/useChat";
 import { Message } from "../../lib/api";
-import { QuillEditor } from "../../hooks/editorTypes";
 
 type ChatAssistantProps = {
   isOpen: boolean;
   onClose: () => void;
   selectedText: string | null;
-  quillRef: React.RefObject<{ getEditor: () => QuillEditor | null }>;
+  chatSelection: { index: number; length: number } | null;
+  quillRef: React.RefObject<QuillEditorRef>;
 };
 
 const ChatAssistant = ({
   isOpen,
   onClose,
   selectedText,
+  chatSelection,
   quillRef,
 }: ChatAssistantProps): JSX.Element | null => {
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasAttemptedAutoCreate = useRef(false);
+  const highlightAppliedRef = useRef(false);
+
+  // Create a wrapper for MessageRowItem compatibility
+  const messageQuillRef = useRef<{
+    getEditor: () => QuillEditor | null;
+  }>({
+    getEditor: () => {
+      const editor = quillRef?.current?.getEditor();
+      if (!editor) return null;
+
+      // Return a compatible interface
+      return {
+        getSelection: () => editor.getSelection(),
+        getText: (start?: number, end?: number) => editor.getText(start, end),
+        getHTML: () => editor.root?.innerHTML || "",
+        insertText: (
+          index: number,
+          text: string,
+          format?: Record<string, unknown>
+        ) => {
+          if (format) {
+            editor.insertText(index, text, format);
+          } else {
+            editor.insertText(index, text);
+          }
+        },
+        setSelection: (index: number, length: number) =>
+          editor.setSelection(index, length),
+        formatText: (
+          index: number,
+          length: number,
+          format: Record<string, unknown>
+        ) => {
+          editor.formatText(index, length, format);
+        },
+        deleteText: (index: number, length: number) =>
+          editor.deleteText(index, length),
+        getBounds: (index: number, length: number) =>
+          editor.getBounds?.(index, length),
+        getLength: () => editor.getLength(),
+        getFormat: (index?: number, length?: number) =>
+          editor.getFormat(index, length),
+        format: (name: string, value: unknown) => editor.format(name, value),
+        root: editor.root,
+        makeUnprivilegedEditor: (quill: unknown) => {
+          // Create a simple wrapper for makeUnprivilegedEditor
+          return {
+            getHTML: () => {
+              const q = quill as { root?: { innerHTML?: string } };
+              return q?.root?.innerHTML || "";
+            },
+          };
+        },
+      } as QuillEditor;
+    },
+  });
 
   const {
     currentConversation,
@@ -94,6 +152,55 @@ const ChatAssistant = ({
       hasAttemptedAutoCreate.current = false;
     }
   }, [isOpen]);
+
+  // Apply visual highlighting when chat opens with selected text
+  useEffect(() => {
+    if (
+      isOpen &&
+      chatSelection &&
+      quillRef?.current &&
+      !highlightAppliedRef.current
+    ) {
+      const quill = quillRef.current.getEditor();
+      if (quill) {
+        // Apply background highlight to the selected text
+        quill.formatText(
+          chatSelection.index,
+          chatSelection.length,
+          { background: "rgba(252, 184, 39, 0.2)" }, // Semi-transparent accent color
+          "api"
+        );
+
+        // Clear the actual selection so input can be focused
+        quill.setSelection(0, 0, "silent");
+
+        highlightAppliedRef.current = true;
+      }
+    }
+  }, [isOpen, chatSelection, quillRef]);
+
+  // Clean up highlighting when chat closes
+  useEffect(() => {
+    if (
+      !isOpen &&
+      highlightAppliedRef.current &&
+      quillRef?.current &&
+      chatSelection
+    ) {
+      const quill = quillRef.current.getEditor();
+      if (quill) {
+        // Remove the background highlight
+        quill.formatText(
+          chatSelection.index,
+          chatSelection.length,
+          { background: false },
+          "api"
+        );
+
+        highlightAppliedRef.current = false;
+      }
+    }
+  }, [isOpen, chatSelection, quillRef]);
 
   const handleSubmit = useCallback(async (): Promise<void> => {
     if (!inputValue.trim() || isSendingMessage || isCreatingConversation) {
@@ -235,7 +342,7 @@ const ChatAssistant = ({
               <MessageRowItem
                 key={message.id}
                 message={message}
-                quillRef={quillRef}
+                quillRef={messageQuillRef}
               />
             ))}
             {shouldShowShimmer && (

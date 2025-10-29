@@ -8,6 +8,7 @@ import BottomSidebar from "@renderer/components/BottomSidebar";
 import LeftSidebar from "@renderer/components/LeftSidebar";
 import ChangelogModal from "@renderer/components/Modals/ChangelogModal";
 import FeedbackFormModal from "@renderer/components/Modals/FeedbackFormModal";
+import KeyboardCommandsModal from "@renderer/components/Modals/KeyboardCommandsModal";
 import RightSidebar from "@renderer/components/RightSidebar";
 import TextEditor, { Suggestion } from "@renderer/components/TextEditor";
 import EditorProvider from "@renderer/contexts/EditorContext";
@@ -35,6 +36,8 @@ export default function Editor(): JSX.Element {
     setIsFeedbackFormModalOpen,
     isChangelogModalOpen,
     setIsChangelogModalOpen,
+    isKeyboardCommandsModalOpen,
+    setIsKeyboardCommandsModalOpen,
   } = useModalContext();
 
   const {
@@ -99,7 +102,7 @@ export default function Editor(): JSX.Element {
 
         const conversation = await startNewConversation(
           "New Document",
-          undefined,
+          undefined
         );
 
         const response = await sendMessage(message, "", conversation.id);
@@ -117,7 +120,7 @@ export default function Editor(): JSX.Element {
         setShowInitialPrompt(true);
       }
     },
-    [startNewConversation, sendMessage],
+    [startNewConversation, sendMessage]
   );
 
   useEffect(() => {
@@ -189,14 +192,14 @@ export default function Editor(): JSX.Element {
         setShowInitialPrompt(false);
       }
     },
-    [showInitialPrompt],
+    [showInitialPrompt]
   );
 
   const handleDescriptionChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setPageDescription(e.target.value);
     },
-    [],
+    []
   );
 
   const serializeDocument = useCallback(
@@ -207,12 +210,12 @@ export default function Editor(): JSX.Element {
       const fmDesc = safe(description).replace(/"/g, '\\"');
       return `---\ntitle: "${fmTitle}"\ndescription: "${fmDesc}"\n---\n\n${safe(body)}`;
     },
-    [],
+    []
   );
 
   const parseDocument = useCallback(
     (
-      content: string,
+      content: string
     ): { title?: string; description?: string; body: string } => {
       if (!content?.startsWith("---\n")) {
         return { body: content };
@@ -225,7 +228,7 @@ export default function Editor(): JSX.Element {
       const body = content.slice(endIdx + 5); // after '\n---\n'
       let title: string | undefined;
       let description: string | undefined;
-      header.split("\n").forEach((line) => {
+      header.split("\n").forEach(line => {
         const [key, ...rest] = line.split(":");
         if (!key || rest.length === 0) return;
         const rawVal = rest.join(":").trim();
@@ -238,7 +241,7 @@ export default function Editor(): JSX.Element {
       });
       return { title, description, body };
     },
-    [],
+    []
   );
 
   const handleScroll = useCallback(() => {
@@ -273,13 +276,13 @@ export default function Editor(): JSX.Element {
   const handleFileCreated = useCallback(
     (
       _event: Electron.IpcRendererEvent,
-      { filePath }: { filePath: string },
+      { filePath }: { filePath: string }
     ): void => {
       setCurrentFilePath(filePath);
       const fileName = filePath.split("/").pop() ?? "file";
       setSaveStatus(`created ${fileName}`);
     },
-    [],
+    []
   );
 
   useEffect(() => {
@@ -290,7 +293,7 @@ export default function Editor(): JSX.Element {
           const serialized = serializeDocument(
             pageTitle,
             pageDescription,
-            textValue,
+            textValue
           );
           window.api.triggerSaveDocument(currentFilePath, serialized);
           const fileName = currentFilePath.split("/").pop() ?? "file";
@@ -299,7 +302,7 @@ export default function Editor(): JSX.Element {
           const serialized = serializeDocument(
             pageTitle,
             pageDescription,
-            textValue,
+            textValue
           );
           window.api.triggerCreateDocument(serialized);
           setSaveStatus("creating new file...");
@@ -327,7 +330,7 @@ export default function Editor(): JSX.Element {
 
     const handleFileOpened = (
       _event: Electron.IpcRendererEvent,
-      data: { filePath: string; content: string },
+      data: { filePath: string; content: string }
     ): void => {
       const { filePath, content } = data;
       const parsed = parseDocument(content);
@@ -338,7 +341,7 @@ export default function Editor(): JSX.Element {
       if (parsed.description !== undefined) {
         setPageDescription(parsed.description);
       } else {
-        setPageDescription((prev) => prev ?? "");
+        setPageDescription(prev => prev ?? "");
       }
       setCurrentFilePath(filePath);
     };
@@ -367,6 +370,10 @@ export default function Editor(): JSX.Element {
 
   useEffect(() => {
     window.api.notifyRouteChange("/");
+  }, []);
+
+  useEffect(() => {
+    window.api.maximizeWindow();
   }, []);
 
   return (
@@ -474,6 +481,11 @@ export default function Editor(): JSX.Element {
             )}
             {isChangelogModalOpen && (
               <ChangelogModal onClose={() => setIsChangelogModalOpen(false)} />
+            )}
+            {isKeyboardCommandsModalOpen && (
+              <KeyboardCommandsModal
+                onClose={() => setIsKeyboardCommandsModalOpen(false)}
+              />
             )}
           </Wrapper>
         </div>

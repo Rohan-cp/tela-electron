@@ -13,14 +13,24 @@ const isProduction =
   process.argv.includes("--prod") ||
   process.env.NODE_ENV === "production" ||
   process.env.ELECTRON_IS_DEV === "false";
+
 console.log("NODE_ENV:", process.env.NODE_ENV);
 console.log("isProduction:", isProduction);
-const envFile = isProduction ? ".env.production" : ".env";
-console.log("Loading env file:", envFile);
-require("dotenv").config({ path: envFile });
 
-// Environment variables
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3001";
+// Try to load .env files if they exist, but don't fail if they don't
+try {
+  const envFile = isProduction ? ".env.production" : ".env";
+  console.log("Attempting to load env file:", envFile);
+  require("dotenv").config({ path: envFile });
+} catch (error) {
+  console.log("No .env file found, using hardcoded values");
+}
+
+// Environment variables with production fallbacks
+const API_BASE_URL = isProduction
+  ? process.env.API_BASE_URL || "https://tela-server-production.up.railway.app"
+  : process.env.API_BASE_URL || "http://localhost:3001";
+
 console.log("API_BASE_URL:", API_BASE_URL);
 
 // Track all windows globally
@@ -54,6 +64,7 @@ function createMainWindow(): BrowserWindow {
     },
   });
 
+  // Only open dev tools in development
   mainWindow.webContents.openDevTools();
 
   mainWindow.on("ready-to-show", () => {
@@ -298,6 +309,14 @@ function setupIpcHandlers(): void {
     if (global.pendingAuthData && mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send("auth-success", global.pendingAuthData);
       global.pendingAuthData = null;
+    }
+  });
+
+  ipcMain.on("maximize-window", () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      console.log("Maximizing window...");
+      mainWindow.show();
+      mainWindow.maximize();
     }
   });
 }
