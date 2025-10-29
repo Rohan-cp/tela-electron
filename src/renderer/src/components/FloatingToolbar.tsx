@@ -50,7 +50,6 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     }
   }, [showToolbar, isTransformSelected]);
 
-  // Apply visual highlighting when transform bubble opens
   useEffect(() => {
     if (
       showToolbar &&
@@ -61,15 +60,13 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     ) {
       const quill = quillRef.current.getEditor();
       if (quill) {
-        // Apply background highlight to the transform selection
         quill.formatText(
           transformSelection.index,
           transformSelection.length,
-          { background: "rgba(252, 184, 39, 0.2)" }, // Semi-transparent accent color
+          { background: "rgba(252, 184, 39, 0.2)" },
           "api"
         );
 
-        // Clear the actual selection so input can be focused
         quill.setSelection(0, 0, "silent");
 
         highlightAppliedRef.current = true;
@@ -77,17 +74,14 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     }
   }, [showToolbar, isTransformSelected, quillRef, transformSelection]);
 
-  // Auto-focus input when transform bubble opens
   useEffect(() => {
     if (showToolbar && isTransformSelected && inputRef.current) {
-      // Small delay to ensure the element is properly rendered
       setTimeout(() => {
         inputRef.current?.focus();
       }, 10);
     }
   }, [showToolbar, isTransformSelected]);
 
-  // Clean up highlighting when transform bubble closes
   useEffect(() => {
     if (
       (!showToolbar || !isTransformSelected) &&
@@ -97,7 +91,6 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     ) {
       const quill = quillRef.current.getEditor();
       if (quill) {
-        // Remove the background highlight
         quill.formatText(
           transformSelection.index,
           transformSelection.length,
@@ -126,10 +119,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     }
   };
 
-  const handleClickOnThinkDiv = (): void => {
-    // Handle click on the "Preparing your changes..." text
-    // This could be used to cancel the operation or show more details
-  };
+  const handleClickOnThinkDiv = (): void => {};
 
   if (!showToolbar) return null;
 

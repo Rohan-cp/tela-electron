@@ -44,13 +44,10 @@ export default function Tooltip({ className, dataTestId }: Props): JSX.Element {
 
   const handleUpdateClick = useCallback(async (): Promise<void> => {
     if (updateStatus.downloaded) {
-      // Update is downloaded, install and restart
       await installUpdateAndRestart();
     } else if (updateStatus.isAvailable) {
-      // Update is available but not downloaded, download it
       await downloadUpdate();
     } else {
-      // Check for updates
       await checkForUpdates();
     }
   }, [updateStatus, installUpdateAndRestart, downloadUpdate, checkForUpdates]);

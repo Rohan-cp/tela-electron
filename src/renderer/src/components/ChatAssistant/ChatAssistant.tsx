@@ -34,7 +34,6 @@ const ChatAssistant = ({
   const hasAttemptedAutoCreate = useRef(false);
   const highlightAppliedRef = useRef(false);
 
-  // Create a wrapper for MessageRowItem compatibility
   const messageQuillRef = useRef<{
     getEditor: () => QuillEditor | null;
   }>({
@@ -42,7 +41,6 @@ const ChatAssistant = ({
       const editor = quillRef?.current?.getEditor();
       if (!editor) return null;
 
-      // Return a compatible interface
       return {
         getSelection: () => editor.getSelection(),
         getText: (start?: number, end?: number) => editor.getText(start, end),
@@ -77,7 +75,6 @@ const ChatAssistant = ({
         format: (name: string, value: unknown) => editor.format(name, value),
         root: editor.root,
         makeUnprivilegedEditor: (quill: unknown) => {
-          // Create a simple wrapper for makeUnprivilegedEditor
           return {
             getHTML: () => {
               const q = quill as { root?: { innerHTML?: string } };
@@ -153,7 +150,6 @@ const ChatAssistant = ({
     }
   }, [isOpen]);
 
-  // Apply visual highlighting when chat opens with selected text
   useEffect(() => {
     if (
       isOpen &&
@@ -163,15 +159,13 @@ const ChatAssistant = ({
     ) {
       const quill = quillRef.current.getEditor();
       if (quill) {
-        // Apply background highlight to the selected text
         quill.formatText(
           chatSelection.index,
           chatSelection.length,
-          { background: "rgba(252, 184, 39, 0.2)" }, // Semi-transparent accent color
+          { background: "rgba(252, 184, 39, 0.2)" },
           "api"
         );
 
-        // Clear the actual selection so input can be focused
         quill.setSelection(0, 0, "silent");
 
         highlightAppliedRef.current = true;
@@ -179,7 +173,6 @@ const ChatAssistant = ({
     }
   }, [isOpen, chatSelection, quillRef]);
 
-  // Clean up highlighting when chat closes
   useEffect(() => {
     if (
       !isOpen &&
@@ -189,7 +182,6 @@ const ChatAssistant = ({
     ) {
       const quill = quillRef.current.getEditor();
       if (quill) {
-        // Remove the background highlight
         quill.formatText(
           chatSelection.index,
           chatSelection.length,
@@ -223,7 +215,7 @@ const ChatAssistant = ({
         conversationId
       );
     } catch {
-      // Error handling could be improved here
+      return;
     }
   }, [
     inputValue,
@@ -248,7 +240,7 @@ const ChatAssistant = ({
     try {
       await startNewConversation("New Chat");
     } catch {
-      // Error handling could be improved here
+      return;
     }
   }, [startNewConversation]);
 

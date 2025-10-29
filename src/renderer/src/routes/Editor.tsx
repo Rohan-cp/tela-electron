@@ -168,7 +168,6 @@ export default function Editor(): JSX.Element {
     };
   }, [saveStatus]);
 
-  // Handle CMD+N for new file
   useEffect(() => {
     const handleNew = (event: KeyboardEvent): void => {
       if ((event.metaKey || event.ctrlKey) && event.key === "n") {
@@ -224,8 +223,8 @@ export default function Editor(): JSX.Element {
       if (endIdx === -1) {
         return { body: content };
       }
-      const header = content.slice(4, endIdx); // after first '---\n'
-      const body = content.slice(endIdx + 5); // after '\n---\n'
+      const header = content.slice(4, endIdx);
+      const body = content.slice(endIdx + 5);
       let title: string | undefined;
       let description: string | undefined;
       header.split("\n").forEach(line => {
@@ -353,7 +352,6 @@ export default function Editor(): JSX.Element {
     };
   }, [setTextValue, setPageTitle, setCurrentFilePath]);
 
-  // minimize zoomfactor with CMD+'-'
   useEffect(() => {
     const handleMinimize = (event: KeyboardEvent): void => {
       if ((event.metaKey || event.ctrlKey) && event.key === "z") {

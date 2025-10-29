@@ -3,8 +3,6 @@ import telaIcon from "../../assets/telaButtonIcon.png";
 import TelaTooltip from "./TelaTooltip";
 import styled from "styled-components";
 
-// for now this button will not do anything
-// for beta, this should allow you update the app
 export default function TelaButton(): JSX.Element {
   const [showTooltip, setShowTooltip] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
