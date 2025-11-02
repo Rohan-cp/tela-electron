@@ -43,13 +43,13 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
     const sentenceEndings = /[.!?]+/;
     const sentences = textBeforeCursor
       .split(sentenceEndings)
-      .filter((s) => s.trim().length > 0)
-      .map((s) => s.trim());
+      .filter(s => s.trim().length > 0)
+      .map(s => s.trim());
 
     const contextSentences = sentences.slice(0, -1);
 
     return contextSentences
-      .map((sentence) => {
+      .map(sentence => {
         const hasEnding = /[.!?]$/.test(sentence);
         return hasEnding ? sentence : sentence + ".";
       })
@@ -81,27 +81,34 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
   }, [quillRef]);
 
   const insertGreySuggestion = useCallback(
-    (suggestion: string) => {
+    (suggestion: string, expectedCursorIndex: number) => {
       if (!quillRef.current) {
-        return;
+        return false;
       }
 
       const quill = quillRef.current.getEditor();
       const selection = quill.getSelection();
 
       if (!selection) {
-        return;
+        return false;
+      }
+
+      // Validate that cursor hasn't moved since we started generating
+      if (selection.index !== expectedCursorIndex) {
+        return false;
       }
 
       const suggestionWithSpace = " " + suggestion;
+
       quill.insertText(selection.index, suggestionWithSpace, {
         color: "#666666",
         background: "rgba(255, 255, 255, 0.1)",
       });
 
       quill.setSelection(selection.index, 0);
+      return true;
     },
-    [quillRef],
+    [quillRef]
   );
 
   const generateSuggestion = useCallback(async () => {
@@ -109,18 +116,27 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
       return;
     }
 
+    const quill = quillRef.current.getEditor();
+    const initialSelection = quill.getSelection();
+
+    if (!initialSelection) {
+      return;
+    }
+
+    const initialCursorIndex = initialSelection.index;
+
     const context = getContext();
     const currentSentence = getCurrentSentence();
 
     if (!currentSentence) {
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         error: "Please type at least a few words to get a suggestion",
       }));
       return;
     }
 
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -137,17 +153,32 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
 
       if (result.suggestion && result.suggestion.trim().length > 0) {
         const suggestionWithSpace = " " + result.suggestion;
-        setState((prev) => ({
-          ...prev,
-          isActive: true,
-          suggestion: suggestionWithSpace,
-          isLoading: false,
-          error: null,
-        }));
 
-        insertGreySuggestion(result.suggestion);
+        // Try to insert the suggestion
+        const insertionSuccess = insertGreySuggestion(
+          result.suggestion,
+          initialCursorIndex
+        );
+
+        if (insertionSuccess) {
+          setState(prev => ({
+            ...prev,
+            isActive: true,
+            suggestion: suggestionWithSpace,
+            isLoading: false,
+            error: null,
+          }));
+        } else {
+          setState(prev => ({
+            ...prev,
+            isActive: false,
+            suggestion: "",
+            isLoading: false,
+            error: "Cursor moved during suggestion generation",
+          }));
+        }
       } else {
-        setState((prev) => ({
+        setState(prev => ({
           ...prev,
           isLoading: false,
           error: "No suggestion received from the AI",
@@ -155,7 +186,7 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
       }
     } catch (error: unknown) {
       if (error instanceof Error && error.name === "AbortError") {
-        setState((prev) => ({
+        setState(prev => ({
           ...prev,
           isLoading: false,
           error: null,
@@ -179,7 +210,7 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
         }
       }
 
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         isLoading: false,
         error: errorMessage,
@@ -208,6 +239,7 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
     const text = quill.getText(0, quill.getText(0, 10000).length);
 
     const suggestionIndex = text.indexOf(state.suggestion);
+
     if (suggestionIndex !== -1) {
       quill.formatText(suggestionIndex, state.suggestion.length, {
         color: "#fafafa",
@@ -220,7 +252,7 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
 
     justAcceptedRef.current = true;
 
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       isActive: false,
       suggestion: "",
@@ -244,11 +276,12 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
     const text = quill.getText(0, quill.getText(0, 10000).length);
 
     const suggestionIndex = text.indexOf(state.suggestion);
+
     if (suggestionIndex !== -1) {
       quill.deleteText(suggestionIndex, state.suggestion.length);
     }
 
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       isActive: false,
       suggestion: "",
@@ -261,12 +294,16 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
       return;
     }
 
+    if (state.isLoading) {
+      return;
+    }
+
     if (state.isActive) {
       acceptSuggestion();
     } else {
       generateSuggestion();
     }
-  }, [state.isActive, acceptSuggestion, generateSuggestion]);
+  }, [state.isActive, state.isLoading, acceptSuggestion, generateSuggestion]);
 
   const handleEscapePress = useCallback(() => {
     if (state.isActive) {

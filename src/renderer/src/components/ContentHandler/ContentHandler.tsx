@@ -7,7 +7,7 @@ export interface ContentHandlerProps {
   updateFileStats: () => void;
   handleUpdatingSelectedStats: (
     range: { index: number; length: number },
-    editor: { getText: () => string },
+    editor: { getText: () => string }
   ) => void;
   getEditorStats: (editor: { getText: () => string }) => EditorStats;
   setCharCount: (count: number) => void;
@@ -37,7 +37,7 @@ export function useContentHandler({
     editor: {
       getText: () => string;
       getSelection?: () => { index: number; length: number } | null;
-    },
+    }
   ) => void;
 } {
   const handleChange = useCallback(
@@ -48,7 +48,7 @@ export function useContentHandler({
       editor: {
         getText: () => string;
         getSelection?: () => { index: number; length: number } | null;
-      },
+      }
     ) => {
       const newContent = content;
 
@@ -79,7 +79,7 @@ export function useContentHandler({
       setLineCount,
       updateFileStats,
       handleUpdatingSelectedStats,
-    ],
+    ]
   );
 
   // Set up key event listeners on the Quill editor

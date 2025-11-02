@@ -130,7 +130,30 @@ const TextEditor = forwardRef<
     setIsTransformSelected,
     setSelectedText: () => {},
     setIsChatAssistantOpen: (open: boolean | ((prev: boolean) => boolean)) => {
-      if (open) {
+      // Handle function (toggle) case
+      if (typeof open === "function") {
+        const newState = open(isChatAssistantOpen);
+        if (newState) {
+          const quill = quillRef.current?.getEditor();
+          if (quill) {
+            const selection = quill.getSelection();
+            if (selection && selection.length > 0) {
+              const text = quill.getText(selection.index, selection.length);
+              openChatAssistant(text, {
+                index: selection.index,
+                length: selection.length,
+              });
+            } else {
+              openChatAssistant();
+            }
+          } else {
+            openChatAssistant();
+          }
+        } else {
+          closeChatAssistant();
+        }
+      } else if (open) {
+        // Handle boolean true case
         const quill = quillRef.current?.getEditor();
         if (quill) {
           const selection = quill.getSelection();
@@ -147,6 +170,7 @@ const TextEditor = forwardRef<
           openChatAssistant();
         }
       } else {
+        // Handle boolean false case
         closeChatAssistant();
       }
     },
