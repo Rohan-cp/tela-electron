@@ -48,6 +48,29 @@
   color: #212121;
 }
 
+/* Fix list visibility in Bubble theme (for dark background editors) */
+.ql-editor ul,
+.ql-editor ol {
+  list-style-position: inside;
+  padding-left: 1.2em;
+  margin: 0.4em 0;
+}
+
+/* Make bullet points visible */
+.ql-editor ul li::marker {
+  color: #f5c542; /* or any accent color you like */
+}
+
+/* Ensure text is visible */
+.ql-editor li {
+  color: #e0e0e0; /* adjust to your text color */
+}
+
+/* Optional: adjust caret color */
+.ql-editor {
+  caret-color: #f5c542;
+}
+
 .ql-editor .autocomplete-suggestion {
   color: #666666 !important;
   background-color: rgba(255, 255, 255, 0.1) !important;
@@ -508,4 +531,30 @@
 
 .chat-empty-list-item:last-child {
   margin-bottom: 0;
+}
+
+/* Reduce gap between bullet and text */
+.ql-editor ul,
+.ql-editor ol {
+  padding-left: 0.8em !important; /* default ~1.5em */
+}
+
+.ql-editor li {
+  padding-left: 0.2em !important; /* tighten the gap */
+}
+
+.ql-editor li::marker {
+  font-size: 0.9em; /* optional: make the dot smaller */
+}
+
+.ql-editor ul > li {
+  list-style-type: disc !important;
+}
+
+.ql-editor ol > li {
+  list-style-type: decimal !important;
+}
+
+.ql-editor li::marker {
+  color: #fff !important; /* change to your text color */
 }

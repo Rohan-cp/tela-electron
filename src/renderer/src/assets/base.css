@@ -35,7 +35,7 @@
   --tela-bg-overlay-dark: rgba(0, 0, 0, 0.2);
 
   /* Text Colors */
-  --tela-text-primary: #DCDCDC;
+  --tela-text-primary: #dcdcdc;
   --tela-text-secondary: #b3b3b3;
   --tela-text-tertiary: #888888;
   --tela-text-quaternary: #9e9e9e;
@@ -43,10 +43,10 @@
   --tela-text-disabled: #666666;
 
   /* Accent Colors */
-  --tela-accent-primary: #FCB827;
+  --tela-accent-primary: #fcb827;
   --tela-accent-secondary: #ffae00;
-  --tela-accent-hover: #FFC342;
-  --tela-accent-orange: #FE5100;
+  --tela-accent-hover: #ffc342;
+  --tela-accent-orange: #fe5100;
 
   /* Status Colors */
   --tela-success: #49de80;
@@ -67,7 +67,7 @@
 
   /* Selection Colors */
   --tela-selection-bg: #070707;
-  --tela-caret-color: #FCB827;
+  --tela-caret-color: #fcb827;
 
   /* Chat Assistant Colors */
   --tela-chat-bg: #1e1e1e;
@@ -115,10 +115,6 @@
   margin: 0;
 }
 
-ul {
-  list-style: none;
-}
-
 body {
   min-height: 100vh;
   color: var(--color-text);
@@ -128,14 +124,14 @@ body {
     Inter,
     -apple-system,
     BlinkMacSystemFont,
-    'Segoe UI',
+    "Segoe UI",
     Roboto,
     Oxygen,
     Ubuntu,
     Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
     sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -143,73 +139,73 @@ body {
 }
 
 @font-face {
-  font-family: 'NM-Regular';
+  font-family: "NM-Regular";
   font-weight: 400;
   src:
-    local('NM-Regular'),
-    url(./NeueMontreal-Regular.otf) format('opentype');
+    local("NM-Regular"),
+    url(./NeueMontreal-Regular.otf) format("opentype");
 }
 
 @font-face {
-  font-family: 'NM-Medium';
+  font-family: "NM-Medium";
   font-weight: 500;
   src:
-    local('NM-Medium'),
-    url(./NeueMontreal-Medium.otf) format('opentype');
+    local("NM-Medium"),
+    url(./NeueMontreal-Medium.otf) format("opentype");
 }
 
 @font-face {
-  font-family: 'SfProRegular';
+  font-family: "SfProRegular";
   font-weight: 400;
   src:
-    local('SfProLight'),
-    url(./SF-Pro-Text-Regular.otf) format('opentype');
+    local("SfProLight"),
+    url(./SF-Pro-Text-Regular.otf) format("opentype");
 }
 
 @font-face {
-  font-family: 'SfProMedium';
+  font-family: "SfProMedium";
   font-weight: 600;
   src:
-    local('SfProMedium'),
-    url(./SF-Pro-Text-Medium.otf) format('opentype');
+    local("SfProMedium"),
+    url(./SF-Pro-Text-Medium.otf) format("opentype");
 }
 
 @font-face {
-  font-family: 'SfProLight';
+  font-family: "SfProLight";
   font-weight: 300;
   src:
-    local('SfProLight'),
-    url(./SF-Pro-Text-Light.otf) format('opentype');
+    local("SfProLight"),
+    url(./SF-Pro-Text-Light.otf) format("opentype");
 }
 
 @font-face {
-  font-family: 'SfProDisplayRegular';
+  font-family: "SfProDisplayRegular";
   font-weight: 400;
   src:
-    local('SfProDisplayRegular'),
-    url(./SF-Pro-Display-Regular.otf) format('opentype');
+    local("SfProDisplayRegular"),
+    url(./SF-Pro-Display-Regular.otf) format("opentype");
 }
 
 @font-face {
-  font-family: 'SfProDisplayMedium';
+  font-family: "SfProDisplayMedium";
   font-weight: 500;
   src:
-    local('SfProDisplayMedium'),
-    url(./SF-Pro-Display-Medium.otf) format('opentype');
+    local("SfProDisplayMedium"),
+    url(./SF-Pro-Display-Medium.otf) format("opentype");
 }
 
 @font-face {
-  font-family: 'SfProDisplayMediumItalic';
+  font-family: "SfProDisplayMediumItalic";
   font-weight: 500;
   src:
-    local('SfProDisplayMediumItalic'),
-    url(./SF-Pro-Display-MediumItalic.otf) format('opentype');
+    local("SfProDisplayMediumItalic"),
+    url(./SF-Pro-Display-MediumItalic.otf) format("opentype");
 }
 
 @font-face {
-  font-family: 'SfProTextSemibold';
+  font-family: "SfProTextSemibold";
   font-weight: 600;
   src:
-    local('SfProTextSemibold'),
-    url(./SF-Pro-Text-Semibold.otf) format('opentype');
+    local("SfProTextSemibold"),
+    url(./SF-Pro-Text-Semibold.otf) format("opentype");
 }
