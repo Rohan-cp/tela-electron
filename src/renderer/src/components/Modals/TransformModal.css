@@ -22,6 +22,7 @@
   max-width: 600px;
   width: 90%;
   max-height: 80vh;
+  min-height: 200px;
   overflow: hidden;
   font-family: NM-Medium;
 }
@@ -288,8 +289,12 @@
 
 /* Animations */
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive Design */
@@ -298,13 +303,14 @@
     width: 95%;
     max-height: 90vh;
     max-width: 500px;
+    min-height: 180px;
   }
-  
+
   .diff-container {
     min-width: 400px;
     max-width: 450px;
   }
-  
+
   .loading-screen,
   .error-screen {
     min-width: 280px;
