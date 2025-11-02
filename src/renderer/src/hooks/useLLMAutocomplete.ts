@@ -80,6 +80,38 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
     return cleanedSentence;
   }, [quillRef]);
 
+  const shouldAddSpace = useCallback(() => {
+    if (!quillRef.current) return false;
+
+    const quill = quillRef.current.getEditor();
+    const selection = quill.getSelection();
+
+    if (!selection) return false;
+
+    const allText = quill.getText();
+    const cursorIndex = selection.index;
+
+    // Check character before cursor
+    const charBefore = cursorIndex > 0 ? allText[cursorIndex - 1] : "";
+    // Check character after cursor
+    const charAfter = cursorIndex < allText.length ? allText[cursorIndex] : "";
+
+    // Don't add space if:
+    // 1. Cursor is at start of text
+    // 2. Previous character is already whitespace
+    // 3. Next character is already whitespace or punctuation
+    if (cursorIndex === 0 || /\s/.test(charBefore)) {
+      return false;
+    }
+
+    if (/[\s.,!?;:]/.test(charAfter)) {
+      return false;
+    }
+
+    // Add space if we're at the end of a word (after non-whitespace)
+    return /\S/.test(charBefore);
+  }, [quillRef]);
+
   const insertGreySuggestion = useCallback(
     (suggestion: string, expectedCursorIndex: number) => {
       if (!quillRef.current) {
@@ -98,9 +130,9 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
         return false;
       }
 
-      const suggestionWithSpace = " " + suggestion;
+      const suggestionText = shouldAddSpace() ? " " + suggestion : suggestion;
 
-      quill.insertText(selection.index, suggestionWithSpace, {
+      quill.insertText(selection.index, suggestionText, {
         color: "#666666",
         background: "rgba(255, 255, 255, 0.1)",
       });
@@ -108,7 +140,7 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
       quill.setSelection(selection.index, 0);
       return true;
     },
-    [quillRef]
+    [quillRef, shouldAddSpace]
   );
 
   const generateSuggestion = useCallback(async () => {
@@ -152,7 +184,9 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
       });
 
       if (result.suggestion && result.suggestion.trim().length > 0) {
-        const suggestionWithSpace = " " + result.suggestion;
+        const suggestionText = shouldAddSpace()
+          ? " " + result.suggestion
+          : result.suggestion;
 
         // Try to insert the suggestion
         const insertionSuccess = insertGreySuggestion(
@@ -164,7 +198,7 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
           setState(prev => ({
             ...prev,
             isActive: true,
-            suggestion: suggestionWithSpace,
+            suggestion: suggestionText,
             isLoading: false,
             error: null,
           }));
@@ -222,6 +256,7 @@ export function useLLMAutocomplete({ quillRef }: UseLLMAutocompleteProps): {
     getCurrentSentence,
     autocompleteMutation,
     insertGreySuggestion,
+    shouldAddSpace,
   ]);
 
   const acceptSuggestion = useCallback(() => {
