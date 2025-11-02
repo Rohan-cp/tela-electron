@@ -1,6 +1,6 @@
 {
   "name": "tela",
-  "version": "1.0.01",
+  "version": "1.0.2",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
